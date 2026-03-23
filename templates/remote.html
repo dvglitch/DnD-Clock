@@ -53,6 +53,8 @@
             let timers = {};
             let selected = null;
             let locked = false;
+            let numTimers = 6;
+            let dmExclusive = false;
 
             function formatTime(s) {
                 let m = Math.floor(s / 60);
@@ -72,6 +74,8 @@
 
             socket.on("control_update", (data) => {
                 locked = data.locked;
+                numTimers = data.num_timers || 6;
+                dmExclusive = data.dm_exclusive || false;
                 document.body.style.opacity = locked ? 0.5 : 1;
             });
 
@@ -79,10 +83,14 @@
             function renderSelect() {
                 const container = document.getElementById("timers");
                 container.innerHTML = "";
-                const ids = Object.keys(timers)
+                let ids = Object.keys(timers)
                     .map(Number)
-                    .sort((a, b) => a - b)
-                    .slice(0, -1); // remove last
+                    .sort((a, b) => a - b);
+                
+                // If dmExclusive is enabled, exclude the last timer
+                if (dmExclusive) {
+                    ids = ids.slice(0, -1);
+                }
 
                 for (let i of ids) {
                     const t = timers[i];

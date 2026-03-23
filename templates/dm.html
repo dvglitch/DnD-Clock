@@ -40,6 +40,8 @@
 
             let timers = {};
             let locked = false;
+            let numTimers = 6;
+            let dmExclusive = false;
 
             function formatTime(s) {
                 let m = Math.floor(s / 60);
@@ -58,6 +60,8 @@
 
             socket.on("control_update", (data) => {
                 locked = data.locked;
+                numTimers = data.num_timers || 6;
+                dmExclusive = data.dm_exclusive || false;
                 document.body.style.opacity = locked ? 0.5 : 1;
             });
 

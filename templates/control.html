@@ -60,6 +60,10 @@
             <input id="allTime" type="number" value="180">
             <button onclick="setAll()">Apply</button>
 
+            <h3>Number of Timers</h3>
+            <input id="numTimers" type="number" value="6" min="1" max="12">
+            <button onclick="setNumTimers()">Apply</button>
+
             <h3>Controls</h3>
 
             <label class="switch">
@@ -68,6 +72,15 @@
             </label>
 
             <div id="lockLabel" style="margin-top:10px;">🔓 Unlocked</div>
+
+            <div style="margin-top:20px; margin-bottom:10px;">
+                <label>DM Exclusive (hide last timer from display):</label>
+                <label class="switch">
+                    <input type="checkbox" id="dmExclusiveToggle" onchange="toggleDmExclusive()">
+                    <span class="slider"></span>
+                </label>
+                <div id="dmExclusiveLabel" style="margin-top:10px;">Off</div>
+            </div>
 
             <!-- TIMERS -->
             <h3>Individual Timer Controls</h3>
@@ -86,17 +99,37 @@
                     let sec = Math.floor(s % 60);
                     return `${m}:${sec.toString().padStart(2, '0')}`;
                 }
+                
+                let numTimers = 6;
+                let dmExclusive = false;
                                   
                 socket.on("control_update", (data) => {
                     locked = data.locked;
+                    numTimers = data.num_timers || 6;
+                    dmExclusive = data.dm_exclusive || false;
+                    
+                    document.getElementById("numTimers").value = numTimers;
+                    document.getElementById("dmExclusiveToggle").checked = dmExclusive;
+                    
                     updateLockUI();
+                    updateDmExclusiveUI();
+                    
+                    // Remove old timer divs that are beyond numTimers
+                    for (let i = numTimers + 1; i <= 12; i++) {
+                        const div = document.getElementById(`timer-${i}`);
+                        if (div) {
+                            div.remove();
+                        }
+                    }
                 }); 
 
                 socket.on("update", (data) => {
                     const container = document.getElementById("timers");
 
-                    for (let i = 1; i <= 6; i++) {
+                    for (let i = 1; i <= numTimers; i++) {
                         const t = data[i];
+                        if (!t) continue; // Skip if timer doesn't exist
+                        
                         let div = document.getElementById(`timer-${i}`);
 
                         // ✅ Create once
@@ -209,6 +242,30 @@
                 function setAll() {
                     const seconds = document.getElementById("allTime").value;
                     socket.emit("set_all_time", {seconds});
+                }
+                
+                function setNumTimers() {
+                    const num = document.getElementById("numTimers").value;
+                    socket.emit("set_num_timers", {num});
+                }
+                
+                function toggleDmExclusive() {
+                    const toggle = document.getElementById("dmExclusiveToggle");
+                    const exclusive = toggle.checked;
+                    socket.emit("set_dm_exclusive", {exclusive});
+                }
+                
+                function updateDmExclusiveUI() {
+                    const toggle = document.getElementById("dmExclusiveToggle");
+                    const label = document.getElementById("dmExclusiveLabel");
+                    
+                    toggle.checked = dmExclusive;
+                    
+                    if (dmExclusive) {
+                        label.innerText = "On (DM only for last timer)";
+                    } else {
+                        label.innerText = "Off (show all timers everywhere)";
+                    }
                 }
                                   
                 let locked = false;

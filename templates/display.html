@@ -21,18 +21,27 @@
         <script>
             const socket = io("http://" + location.hostname + ":5000");
 
+            let numTimers = 6;
+            let dmExclusive = false;
+
             function formatTime(s) {
                 let m = Math.floor(s / 60);
                 let sec = Math.floor(s % 60);
                 return `${m}:${sec.toString().padStart(2, '0')}`;
             }
 
+            socket.on("control_update", (data) => {
+                numTimers = data.num_timers || 6;
+                dmExclusive = data.dm_exclusive || false;
+            });
+
             socket.on("update", (data) => {
                 const container = document.getElementById("timers");
                 container.innerHTML = "";
 
-                for (let i = 1; i <= 6; i++) {
+                for (let i = 1; i <= numTimers; i++) {
                     const t = data[i];
+                    if (!t) continue; // Skip if timer doesn't exist
 
                     let bg = "#444"; // paused
                     if (t.running) bg = "#1e7f3f"; // green

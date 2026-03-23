@@ -1,4 +1,5 @@
-from timers import timers, finish_order, DEFAULT_DURATION, control_state
+from timers import timers, finish_order, DEFAULT_DURATION, control_state, init_timers
+import timers as timers_module
 import time
 
 def register_socket_events(socketio):
@@ -40,6 +41,9 @@ def register_socket_events(socketio):
             t["remaining"] = DEFAULT_DURATION
             t["running"] = False
             t["last_update"] = time.time()
+            t["finished"] = False
+        
+        finish_order.clear()
 
 
     @socketio.on("set_all_time")
@@ -74,3 +78,17 @@ def register_socket_events(socketio):
     @socketio.on("set_name")
     def set_name(data):
         timers[data["timer"]]["name"] = data["name"]
+
+    @socketio.on("set_num_timers")
+    def set_num_timers(data):
+        timers_module.num_timers = int(data["num"])
+        control_state["num_timers"] = timers_module.num_timers
+        timers_module.finish_order.clear()
+        init_timers()
+        socketio.emit("control_update", control_state)
+
+    @socketio.on("set_dm_exclusive")
+    def set_dm_exclusive(data):
+        timers_module.dm_exclusive = bool(data["exclusive"])
+        control_state["dm_exclusive"] = timers_module.dm_exclusive
+        socketio.emit("control_update", control_state)

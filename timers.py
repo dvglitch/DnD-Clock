@@ -2,25 +2,39 @@ import time
 
 TIMER_DURATION = 180  # 3 minutes in seconds
 
-# Timer state
-timers = {
-    i: {
-        "remaining": TIMER_DURATION,
-        "running": False,
-        "last_update": time.time(),
-        "name": f"Timer {i}",
-        "finished": False
-    }
-    for i in range(1, 7)
-}
+# Dynamic configuration
+num_timers = 6
+dm_exclusive = False
 
+# Timer state (will be populated dynamically)
+timers = {}
 finish_order = []
 
 DEFAULT_DURATION = 180
 
 control_state = {
-    "locked": False
+    "locked": False,
+    "num_timers": num_timers,
+    "dm_exclusive": dm_exclusive
 }
+
+def init_timers():
+    """Initialize timers based on num_timers setting"""
+    global timers, finish_order
+    timers = {
+        i: {
+            "remaining": DEFAULT_DURATION,
+            "running": False,
+            "last_update": time.time(),
+            "name": f"Timer {i}",
+            "finished": False
+        }
+        for i in range(1, num_timers + 1)
+    }
+    finish_order = []
+
+# Initialize timers on startup
+init_timers()
 
 def timer_loop(socketio):
     while True:
