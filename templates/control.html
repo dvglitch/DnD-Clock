@@ -111,6 +111,10 @@
                     document.getElementById("numTimers").value = numTimers;
                     document.getElementById("dmExclusiveToggle").checked = dmExclusive;
                     
+                    if (data.DEFAULT_DURATION !== undefined) {
+                        document.getElementById("allTime").value = data.DEFAULT_DURATION;
+                    }
+                    
                     updateLockUI();
                     updateDmExclusiveUI();
                     

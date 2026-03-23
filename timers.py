@@ -1,32 +1,36 @@
 import time
+from persistence import load_settings
 
-TIMER_DURATION = 180  # 3 minutes in seconds
+# Load settings from persistence
+settings = load_settings()
 
 # Dynamic configuration
-num_timers = 6
-dm_exclusive = False
+num_timers = settings["num_timers"]
+dm_exclusive = settings["dm_exclusive"]
+locked = settings.get("locked", False)
+DEFAULT_DURATION = settings["DEFAULT_DURATION"]
 
 # Timer state (will be populated dynamically)
 timers = {}
 finish_order = []
 
-DEFAULT_DURATION = 180
-
 control_state = {
-    "locked": False,
+    "locked": locked,
     "num_timers": num_timers,
-    "dm_exclusive": dm_exclusive
+    "dm_exclusive": dm_exclusive,
+    "DEFAULT_DURATION": DEFAULT_DURATION
 }
 
 def init_timers():
     """Initialize timers based on num_timers setting"""
     global timers, finish_order
+    settings = load_settings()
     timers = {
         i: {
             "remaining": DEFAULT_DURATION,
             "running": False,
             "last_update": time.time(),
-            "name": f"Timer {i}",
+            "name": settings.get("timer_names", {}).get(str(i), f"Timer {i}"),
             "finished": False
         }
         for i in range(1, num_timers + 1)

@@ -1,0 +1,15 @@
+{
+    "num_timers": 7,
+    "dm_exclusive": false,
+    "locked": false,
+    "DEFAULT_DURATION": 245,
+    "timer_names": {
+        "1": "Alder",
+        "2": "Thauma",
+        "3": "Cadere",
+        "4": "Elias",
+        "5": "Timer 5",
+        "6": "Timer 6",
+        "7": "Timer 7"
+    }
+}
