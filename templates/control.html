@@ -1,0 +1,238 @@
+    <html>
+        <head>
+            <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+            <style>
+            .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            }
+
+            .switch input {
+            display: none;
+            }
+
+            .slider {
+            position: absolute;
+            cursor: pointer;
+            background-color: #4CAF50;
+            border-radius: 34px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: 0.3s;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            }
+
+            .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            }
+
+            input:checked + .slider {
+            background-color: #f44336;
+            }
+
+            input:checked + .slider:before {
+            transform: translateX(26px);
+            }
+            </style>
+        </head>
+        <body style="font-family:sans-serif; text-align:center; background:#f5f5f5;">
+            <h1>Control Panel</h1>
+
+            <!-- GLOBAL CONTROLS -->
+            <div style="margin-bottom:20px;">
+                <button onclick="toggleAll()">▶ Start / Pause All</button>
+                <button onclick="resetAll()">🔄 Reset All</button>
+            </div>
+
+            <h3>Set Default Timer (seconds)</h3>
+            <input id="allTime" type="number" value="180">
+            <button onclick="setAll()">Apply</button>
+
+            <h3>Controls</h3>
+
+            <label class="switch">
+                <input type="checkbox" id="lockToggle" onchange="toggleLock()">
+                <span class="slider"></span>
+            </label>
+
+            <div id="lockLabel" style="margin-top:10px;">🔓 Unlocked</div>
+
+            <!-- TIMERS -->
+            <h3>Individual Timer Controls</h3>
+            <div id="timers" style="
+                display:grid;
+                grid-template-columns:repeat(3,1fr);
+                gap:20px;
+                padding:20px;
+            "></div>
+
+            <script>
+                const socket = io("http://" + location.hostname + ":5000");
+
+                function formatTime(s) {
+                    let m = Math.floor(s / 60);
+                    let sec = Math.floor(s % 60);
+                    return `${m}:${sec.toString().padStart(2, '0')}`;
+                }
+                                  
+                socket.on("control_update", (data) => {
+                    locked = data.locked;
+                    updateLockUI();
+                }); 
+
+                socket.on("update", (data) => {
+                    const container = document.getElementById("timers");
+
+                    for (let i = 1; i <= 6; i++) {
+                        const t = data[i];
+                        let div = document.getElementById(`timer-${i}`);
+
+                        // ✅ Create once
+                        if (!div) {
+                            div = document.createElement("div");
+                            div.id = `timer-${i}`;
+                            div.style = `
+                                border-radius:10px;
+                                padding:20px;
+                                background:white;
+                                box-shadow:0 2px 6px rgba(0,0,0,0.1);
+                            `;
+
+                            div.innerHTML = `
+                                <input 
+                                    id="name-${i}" 
+                                    style="font-size:18px; text-align:center; width:100%; margin-bottom:10px;"
+                                >
+
+                                <div id="time-display-${i}" style="font-size:36px; font-weight:bold;"></div>
+                                <div id="status-${i}" style="margin-bottom:10px;"></div>
+
+                                <div id="position-${i}" style="font-size:20px; margin-bottom:10px;"></div>
+
+                                <button id="toggle-${i}"></button>
+                                <button onclick="resetTimer(${i})">Reset</button>
+
+                                <br><br>
+
+                                <button onclick="adjust(${i}, 30)">+30s</button>
+                                <button onclick="adjust(${i}, -30)">-30s</button>
+
+                                <br><br>
+
+                                <input id="time-${i}" type="number" placeholder="Set seconds">
+                                <button onclick="setTimer(${i})">Set</button>
+                            `;
+
+                            container.appendChild(div);
+
+                            // attach handlers once
+                            document.getElementById(`toggle-${i}`).onclick = () => toggle(i);
+
+                            document.getElementById(`name-${i}`).onchange = () => {
+                                const name = document.getElementById(`name-${i}`).value;
+                                socket.emit("set_name", {timer: i, name});
+                            };
+                        }
+
+                        // ✅ Update name (only if not actively editing)
+                        const nameInput = document.getElementById(`name-${i}`);
+                        if (document.activeElement !== nameInput) {
+                            nameInput.value = t.name;
+                        }
+
+                        // ✅ Update timer display
+                        document.getElementById(`time-display-${i}`).innerText = formatTime(t.remaining);
+                        document.getElementById(`status-${i}`).innerText = t.running ? "Running" : "Paused";
+
+                        // ✅ Update position (finish order)
+                        const posDiv = document.getElementById(`position-${i}`);
+                        if (t.position) {
+                            posDiv.innerText = `Order: ${t.position}`;
+                        } else {
+                            posDiv.innerText = "";
+                        }
+
+                        // ✅ Update toggle button
+                        const toggleBtn = document.getElementById(`toggle-${i}`);
+                        toggleBtn.innerText = t.running ? "Pause" : "Start";
+
+                        // ✅ Color states
+                        let bg = "#eee";
+                        if (t.running) bg = "#d4f7d4";
+                        if (t.remaining <= 0) bg = "#f7d4d4";
+
+                        div.style.background = bg;
+                    }
+                });
+
+                function toggle(timer) {
+                    socket.emit("toggle", {timer});
+                }
+
+                function resetTimer(timer) {
+                    socket.emit("reset", {timer});
+                }
+
+                function setTimer(timer) {
+                    const input = document.getElementById(`time-${timer}`);
+                    const seconds = input.value;
+                    if (!seconds) return;
+
+                    socket.emit("set_timer", {timer, seconds});
+                    input.value = "";
+                }
+
+                function adjust(timer, delta) {
+                    socket.emit("adjust_timer", {timer, delta});
+                }
+
+                function toggleAll() {
+                    socket.emit("toggle_all");
+                }
+
+                function resetAll() {
+                    socket.emit("reset_all");
+                }
+
+                function setAll() {
+                    const seconds = document.getElementById("allTime").value;
+                    socket.emit("set_all_time", {seconds});
+                }
+                                  
+                let locked = false;
+
+                function toggleLock() {
+                    const toggle = document.getElementById("lockToggle");
+                    locked = toggle.checked;
+
+                    socket.emit("lock_controls", {locked});
+                    updateLockUI();
+                }
+
+                function updateLockUI() {
+                    const toggle = document.getElementById("lockToggle");
+                    const label = document.getElementById("lockLabel");
+
+                    toggle.checked = locked;
+
+                    if (locked) {
+                        label.innerText = "🔒 Locked";
+                    } else {
+                        label.innerText = "🔓 Unlocked";
+                    }
+                }
+            </script>
+        </body>
+    </html>

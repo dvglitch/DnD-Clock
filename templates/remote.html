@@ -1,0 +1,161 @@
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    </head>
+    <body style="font-family:sans-serif; margin:0; background:#111; color:white; text-align:center;">
+
+        <!-- SCREEN 1: SELECT -->
+        <div id="selectScreen">
+            <h2 style="padding:15px;">Select Timer</h2>
+            <div id="timers" style="
+                display:grid;
+                grid-template-columns:repeat(2,1fr);
+                gap:10px;
+                padding:10px;
+            "></div>
+        </div>
+
+        <!-- SCREEN 2: CONTROL -->
+        <div id="controlScreen" style="display:none; padding:20px;">
+            <h2 id="name"></h2>
+
+            <div id="time" style="font-size:48px; font-weight:bold;"></div>
+            <div id="status" style="margin-bottom:10px;"></div>
+            <div id="position" style="margin-bottom:20px;"></div>
+
+            <button id="toggleBtn" onclick="toggle()" style="font-size:24px; width:80%; margin:10px;">
+                Start
+            </button>
+
+            <button onclick="reset()" style="font-size:24px; width:80%; margin:10px;">
+                Reset
+            </button>
+
+            <br>
+
+            <button onclick="adjust(30)" style="font-size:20px; width:35%; margin:10px;">
+                +30s
+            </button>
+
+            <button onclick="adjust(-30)" style="font-size:20px; width:35%; margin:10px;">
+                -30s
+            </button>
+
+            <br><br>
+                                                        
+            <button onclick="goBack()" style="margin-bottom:10px;">Back</button>
+        </div>
+
+        <script>
+            const socket = io("http://" + location.hostname + ":5000");
+
+            let timers = {};
+            let selected = null;
+            let locked = false;
+
+            function formatTime(s) {
+                let m = Math.floor(s / 60);
+                let sec = Math.floor(s % 60);
+                return `${m}:${sec.toString().padStart(2, '0')}`;
+            }
+
+            socket.on("update", (data) => {
+                timers = data;
+
+                if (selected === null) {
+                    renderSelect();
+                } else {
+                    renderControl();
+                }
+            });
+
+            socket.on("control_update", (data) => {
+                locked = data.locked;
+                document.body.style.opacity = locked ? 0.5 : 1;
+            });
+
+            // ---------- SCREEN 1 ----------
+            function renderSelect() {
+                const container = document.getElementById("timers");
+                container.innerHTML = "";
+                const ids = Object.keys(timers)
+                    .map(Number)
+                    .sort((a, b) => a - b)
+                    .slice(0, -1); // remove last
+
+                for (let i of ids) {
+                    const t = timers[i];
+                    if (!t) continue;
+
+                    let bg = "#333";
+                    if (t.running) bg = "#1e7f3f";
+                    if (t.remaining <= 0) bg = "#a83232";
+
+                    const div = document.createElement("div");
+                    div.style = `
+                        padding:20px;
+                        border-radius:10px;
+                        background:${bg};
+                        font-size:20px;
+                    `;
+
+                    div.innerHTML = `
+                        <div>${t.name}</div>
+                        <div>${formatTime(t.remaining)}</div>
+                    `;
+
+                    div.onclick = () => {
+                        selected = i;
+                        document.getElementById("selectScreen").style.display = "none";
+                        document.getElementById("controlScreen").style.display = "block";
+                        renderControl();
+                    };
+
+                    container.appendChild(div);
+                }
+            }
+
+            // ---------- SCREEN 2 ----------
+            function renderControl() {
+                const t = timers[selected];
+                if (!t) return;
+
+                document.getElementById("name").innerText = t.name;
+                document.getElementById("time").innerText = formatTime(t.remaining);
+
+                document.getElementById("status").innerText =
+                    t.remaining <= 0 ? "Finished" :
+                    (t.running ? "Running" : "Paused");
+
+                document.getElementById("position").innerText =
+                    t.position ? `Order: ${t.position}` : "";
+
+                // dynamic button text
+                document.getElementById("toggleBtn").innerText =
+                    t.running ? "Pause" : "Start";
+            }
+
+            function goBack() {
+                selected = null;
+                document.getElementById("selectScreen").style.display = "block";
+                document.getElementById("controlScreen").style.display = "none";
+            }
+
+            function toggle() {
+                if (locked) return;
+                socket.emit("toggle", {timer: selected});
+            }
+
+            function reset() {
+                if (locked) return;
+                socket.emit("reset", {timer: selected});
+            }
+
+            function adjust(delta) {
+                if (locked) return;
+                socket.emit("adjust_timer", {timer: selected, delta});
+            }
+        </script>
+    </body>
+    </html>
