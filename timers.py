@@ -8,6 +8,7 @@ settings = load_settings()
 num_timers = settings["num_timers"]
 dm_exclusive = settings["dm_exclusive"]
 locked = settings.get("locked", False)
+adjust_locked = settings.get("adjust_locked", False)
 DEFAULT_DURATION = settings["DEFAULT_DURATION"]
 
 # Timer state (will be populated dynamically)
@@ -16,6 +17,7 @@ finish_order = []
 
 control_state = {
     "locked": locked,
+    "adjust_locked": adjust_locked,
     "num_timers": num_timers,
     "dm_exclusive": dm_exclusive,
     "DEFAULT_DURATION": DEFAULT_DURATION

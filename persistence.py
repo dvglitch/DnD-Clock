@@ -7,6 +7,7 @@ DEFAULT_SETTINGS = {
     "num_timers": 6,
     "dm_exclusive": False,
     "locked": False,
+    "adjust_locked": False,
     "DEFAULT_DURATION": 180,
     "timer_names": {}
 }

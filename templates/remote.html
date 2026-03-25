@@ -53,6 +53,7 @@
             let timers = {};
             let selected = null;
             let locked = false;
+            let adjustLocked = false;
             let numTimers = 6;
             let dmExclusive = false;
 
@@ -74,9 +75,15 @@
 
             socket.on("control_update", (data) => {
                 locked = data.locked;
+                adjustLocked = data.adjust_locked || false;
                 numTimers = data.num_timers || 6;
                 dmExclusive = data.dm_exclusive || false;
                 document.body.style.opacity = locked ? 0.5 : 1;
+                
+                let adjustBtns = document.querySelectorAll("button[onclick^='adjust']");
+                adjustBtns.forEach(btn => {
+                    btn.style.opacity = (locked || adjustLocked) ? 0.5 : 1;
+                });
             });
 
             // ---------- SCREEN 1 ----------
@@ -161,7 +168,7 @@
             }
 
             function adjust(delta) {
-                if (locked) return;
+                if (locked || adjustLocked) return;
                 socket.emit("adjust_timer", {timer: selected, delta});
             }
         </script>

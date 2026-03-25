@@ -71,7 +71,18 @@
                 <span class="slider"></span>
             </label>
 
-            <div id="lockLabel" style="margin-top:10px;">🔓 Unlocked</div>
+            <div id="lockLabel" style="margin-top:10px;">Master Controls: 🔓 Unlocked</div>
+
+            <div style="margin-top:20px;">
+                <label>Disable +-30s Remote Buttons:</label>
+                <div style="margin-top:10px;">
+                    <label class="switch">
+                        <input type="checkbox" id="adjustLockToggle" onchange="toggleAdjustLock()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="adjustLockLabel" style="margin-top:10px;">+-30s Controls: 🔓 Unlocked</div>
+            </div>
 
             <div style="margin-top:20px; margin-bottom:10px;">
                 <label>DM Exclusive (hide last timer from display):</label>
@@ -104,7 +115,8 @@
                 let dmExclusive = false;
                                   
                 socket.on("control_update", (data) => {
-                    locked = data.locked;
+                    locked = data.locked || false;
+                    adjustLocked = data.adjust_locked || false;
                     numTimers = data.num_timers || 6;
                     dmExclusive = data.dm_exclusive || false;
                     
@@ -273,6 +285,7 @@
                 }
                                   
                 let locked = false;
+                let adjustLocked = false;
 
                 function toggleLock() {
                     const toggle = document.getElementById("lockToggle");
@@ -282,16 +295,35 @@
                     updateLockUI();
                 }
 
+                function toggleAdjustLock() {
+                    const toggle = document.getElementById("adjustLockToggle");
+                    adjustLocked = toggle.checked;
+
+                    socket.emit("lock_adjust", {locked: adjustLocked});
+                    updateLockUI();
+                }
+
                 function updateLockUI() {
                     const toggle = document.getElementById("lockToggle");
                     const label = document.getElementById("lockLabel");
+                    const adjustToggle = document.getElementById("adjustLockToggle");
+                    const adjustLabel = document.getElementById("adjustLockLabel");
 
                     toggle.checked = locked;
+                    if (adjustToggle) adjustToggle.checked = adjustLocked;
 
                     if (locked) {
-                        label.innerText = "🔒 Locked";
+                        label.innerText = "Master Controls: 🔒 Locked";
                     } else {
-                        label.innerText = "🔓 Unlocked";
+                        label.innerText = "Master Controls: 🔓 Unlocked";
+                    }
+
+                    if (adjustLabel) {
+                        if (adjustLocked) {
+                            adjustLabel.innerText = "+-30s Controls: 🔒 Locked";
+                        } else {
+                            adjustLabel.innerText = "+-30s Controls: 🔓 Unlocked";
+                        }
                     }
                 }
             </script>

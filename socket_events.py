@@ -8,6 +8,7 @@ def register_socket_events(socketio):
             "num_timers": tm.num_timers,
             "dm_exclusive": tm.dm_exclusive,
             "locked": tm.control_state["locked"],
+            "adjust_locked": tm.control_state.get("adjust_locked", False),
             "DEFAULT_DURATION": tm.DEFAULT_DURATION,
             "timer_names": {str(k): v["name"] for k, v in tm.timers.items()}
         }
@@ -75,6 +76,12 @@ def register_socket_events(socketio):
     @socketio.on("lock_controls")
     def lock_controls(data):
         tm.control_state["locked"] = data["locked"]
+        socketio.emit("control_update", tm.control_state)
+        save_current_state()
+
+    @socketio.on("lock_adjust")
+    def lock_adjust(data):
+        tm.control_state["adjust_locked"] = data["locked"]
         socketio.emit("control_update", tm.control_state)
         save_current_state()
 
