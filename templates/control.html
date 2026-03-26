@@ -1,12 +1,13 @@
     <html>
         <head>
+            <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
             <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
             <style>
-            body { font-family: sans-serif; text-align: center; background: #111; color: white; margin: 0; padding-top: 20px; }
-            button { background: #555; color: white; border: none; padding: 0 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px; transition: background 0.3s; box-sizing: border-box; height: 42px; vertical-align: middle; line-height: 42px; }
+            body { font-family: 'Inter', sans-serif; text-align: center; background: linear-gradient(rgba(17,17,17,0.85), rgba(17,17,17,0.88)), url('/static/images/tavern.png') no-repeat center center fixed; background-size: cover; color: white; margin: 0; padding-top: 20px; }
+            button { background: #555; color: white; border: none; padding: 0 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px; transition: background 0.3s; box-sizing: border-box; height: 42px; vertical-align: middle; line-height: 42px; font-family: 'Inter', sans-serif; }
             button:hover { background: #777; }
-            input[type=number], input[type=text] { background: #222; color: white; border: 1px solid #555; padding: 0 10px; border-radius: 5px; font-size: 16px; text-align: center; box-sizing: border-box; height: 42px; vertical-align: middle; }
-            h1, h3 { color: #f5f5f5; }
+            input[type=number], input[type=text] { background: #222; color: white; border: 1px solid #555; padding: 0 10px; border-radius: 5px; font-size: 16px; text-align: center; box-sizing: border-box; height: 42px; vertical-align: middle; font-family: 'Inter', sans-serif; }
+            h1, h2, h3 { font-family: 'Cinzel', serif; color: #f5f5f5; text-shadow: 1px 1px 3px black; }
 
             .timer-running button { background: #2b9952; }
             .timer-running button:hover { background: #3bcc6b; }
@@ -180,8 +181,11 @@
                             div.style = `
                                 border-radius:10px;
                                 padding:20px;
+                                padding-bottom:30px;
                                 background:#222;
                                 box-shadow:0 4px 10px rgba(0,0,0,0.5);
+                                position:relative;
+                                overflow:hidden;
                             `;
 
                             div.innerHTML = `
@@ -204,7 +208,7 @@
 
                                     <!-- Time and Status inline -->
                                     <div style="display:flex; justify-content:space-between; align-items:flex-end; margin:10px 0;">
-                                        <div id="time-display-${i}" style="font-size:48px; font-weight:bold; line-height:1;"></div>
+                                        <div id="time-display-${i}" style="font-size:48px; font-weight:bold; line-height:1; font-variant-numeric: tabular-nums;"></div>
                                         <div style="text-align:right;">
                                             <div id="status-${i}" style="font-size:14px; text-transform:uppercase; letter-spacing:1px; opacity:0.8;"></div>
                                             <div id="position-${i}" style="font-size:18px; font-weight:bold; margin-top:4px;"></div>
@@ -227,6 +231,11 @@
                                     <div style="display:flex; gap:10px;">
                                         <input id="time-${i}" type="number" placeholder="Seconds" style="flex:2; margin:0; box-sizing:border-box;">
                                         <button onclick="setTimer(${i})" style="flex:1; margin:0;">Set</button>
+                                    </div>
+
+                                    <!-- Progress Bar Container -->
+                                    <div style="position:absolute; bottom:0; left:0; right:0; height:8px; background:rgba(0,0,0,0.5);">
+                                        <div id="pb-${i}" style="height:100%; width:100%; background:#4CAF50; transition:width 0.5s linear, background-color 0.5s;"></div>
                                     </div>
                                 </div>
                             `;
@@ -289,6 +298,18 @@
 
                         div.style.background = bg;
                         div.className = timerClass;
+
+                        // ✅ Progress Bar Update
+                        const pct = Math.max(0, Math.min(100, (t.remaining / t.duration) * 100));
+                        let pbColor = "#4CAF50"; // Green
+                        if (pct <= 50) pbColor = "#f39c12"; // Yellow
+                        if (pct <= 20) pbColor = "#e74c3c"; // Red
+
+                        const pb = document.getElementById(`pb-${i}`);
+                        if (pb) {
+                            pb.style.width = `${pct}%`;
+                            pb.style.background = pbColor;
+                        }
                     }
 
                     const toggleAllBtn = document.getElementById("toggleAllBtn");

@@ -40,11 +40,11 @@ def register_socket_events(socketio):
         t = tm.timers[i]
 
         t["remaining"] = tm.DEFAULT_DURATION
+        t["duration"] = tm.DEFAULT_DURATION
         t["running"] = False
         t["last_update"] = time.time()
         t["finished"] = False
         t["raised_hand"] = False
-        t["condition"] = ""
 
         if i in tm.finish_order:
             tm.finish_order.remove(i)
@@ -63,11 +63,11 @@ def register_socket_events(socketio):
     def reset_all():
         for t in tm.timers.values():
             t["remaining"] = tm.DEFAULT_DURATION
+            t["duration"] = tm.DEFAULT_DURATION
             t["running"] = False
             t["last_update"] = time.time()
             t["finished"] = False
             t["raised_hand"] = False
-            t["condition"] = ""
         
         tm.finish_order.clear()
 
@@ -84,6 +84,7 @@ def register_socket_events(socketio):
     def set_timer(data):
         t = tm.timers[data["timer"]]
         t["remaining"] = int(data["seconds"])
+        t["duration"] = int(data["seconds"])
         t["running"] = False
         t["last_update"] = time.time()
 

@@ -35,7 +35,8 @@ def init_timers():
             "name": settings.get("timer_names", {}).get(str(i), f"Timer {i}"),
             "finished": False,
             "raised_hand": False,
-            "condition": ""
+            "condition": "",
+            "duration": DEFAULT_DURATION
         }
         for i in range(1, num_timers + 1)
     }
