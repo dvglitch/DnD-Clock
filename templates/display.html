@@ -74,6 +74,7 @@
                         font-size:30px;
                         ${border};
                         box-shadow:${boxShadow};
+                        position:relative;
                         transition: all 0.3s ease;
                     `;
 
@@ -93,6 +94,12 @@
                         ${t.position ? `
                             <div style="margin-top:15px; font-size:28px;">
                                 Order: ${t.position}
+                            </div>
+                        ` : ""}
+                        
+                        ${t.condition ? `
+                            <div style="position:absolute; top:-8px; right:-8px; background:#e67e22; color:white; padding:8px 18px; border-radius:15px; font-size:24px; font-weight:bold; box-shadow:0 4px 6px rgba(0,0,0,0.3); border:2px solid #222; text-shadow: 1px 1px 2px black;">
+                                ${t.condition}
                             </div>
                         ` : ""}
                     `;

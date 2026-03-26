@@ -21,6 +21,10 @@ def register_socket_events(socketio):
         t = tm.timers[data["timer"]]
         t["raised_hand"] = not t.get("raised_hand", False)
 
+    @socketio.on("set_condition")
+    def set_condition(data):
+        tm.timers[data["timer"]]["condition"] = data["condition"]
+
     @socketio.on("toggle")
     def toggle(data):
         if tm.control_state["locked"]:
@@ -40,6 +44,7 @@ def register_socket_events(socketio):
         t["last_update"] = time.time()
         t["finished"] = False
         t["raised_hand"] = False
+        t["condition"] = ""
 
         if i in tm.finish_order:
             tm.finish_order.remove(i)
@@ -62,6 +67,7 @@ def register_socket_events(socketio):
             t["last_update"] = time.time()
             t["finished"] = False
             t["raised_hand"] = False
+            t["condition"] = ""
         
         tm.finish_order.clear()
 

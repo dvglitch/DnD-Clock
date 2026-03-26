@@ -185,29 +185,50 @@
                             `;
 
                             div.innerHTML = `
-                                <input 
-                                    type="text"
-                                    id="name-${i}" 
-                                    style="width:100%; margin-bottom:10px; box-sizing:border-box; font-weight:bold; font-size:1.17em;"
-                                >
+                                <div style="display:flex; flex-direction:column; gap:10px;">
+                                    <!-- Top Row: Name and Condition side-by-side -->
+                                    <div style="display:flex; gap:10px;">
+                                        <input 
+                                            type="text"
+                                            id="name-${i}" 
+                                            placeholder="Timer Name"
+                                            style="flex:3; box-sizing:border-box; font-weight:bold; font-size:1.1em; margin:0;"
+                                        >
+                                        <input 
+                                            type="text"
+                                            id="condition-${i}" 
+                                            placeholder="Condition"
+                                            style="flex:2; box-sizing:border-box; font-size:1em; margin:0;"
+                                        >
+                                    </div>
 
-                                <div id="time-display-${i}" style="font-size:36px; font-weight:bold;"></div>
-                                <div id="status-${i}" style="margin-bottom:10px;"></div>
+                                    <!-- Time and Status inline -->
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin:10px 0;">
+                                        <div id="time-display-${i}" style="font-size:48px; font-weight:bold; line-height:1;"></div>
+                                        <div style="text-align:right;">
+                                            <div id="status-${i}" style="font-size:14px; text-transform:uppercase; letter-spacing:1px; opacity:0.8;"></div>
+                                            <div id="position-${i}" style="font-size:18px; font-weight:bold; margin-top:4px;"></div>
+                                        </div>
+                                    </div>
 
-                                <div id="position-${i}" style="font-size:20px; margin-bottom:10px;"></div>
+                                    <!-- Main Controls -->
+                                    <div style="display:flex; gap:10px;">
+                                        <button id="toggle-${i}" style="flex:1; margin:0; font-weight:bold;"></button>
+                                        <button onclick="resetTimer(${i})" style="flex:1; margin:0;">Reset</button>
+                                    </div>
 
-                                <button id="toggle-${i}"></button>
-                                <button onclick="resetTimer(${i})">Reset</button>
+                                    <!-- Adjustments -->
+                                    <div style="display:flex; gap:10px;">
+                                        <button onclick="adjust(${i}, 30)" style="flex:1; margin:0;">+30s</button>
+                                        <button onclick="adjust(${i}, -30)" style="flex:1; margin:0;">-30s</button>
+                                    </div>
 
-                                <br><br>
-
-                                <button onclick="adjust(${i}, 30)">+30s</button>
-                                <button onclick="adjust(${i}, -30)">-30s</button>
-
-                                <br><br>
-
-                                <input id="time-${i}" type="number" placeholder="Set seconds">
-                                <button onclick="setTimer(${i})">Set</button>
+                                    <!-- Set custom time -->
+                                    <div style="display:flex; gap:10px;">
+                                        <input id="time-${i}" type="number" placeholder="Seconds" style="flex:2; margin:0; box-sizing:border-box;">
+                                        <button onclick="setTimer(${i})" style="flex:1; margin:0;">Set</button>
+                                    </div>
+                                </div>
                             `;
 
                             container.appendChild(div);
@@ -219,12 +240,23 @@
                                 const name = document.getElementById(`name-${i}`).value;
                                 socket.emit("set_name", {timer: i, name});
                             };
+
+                            document.getElementById(`condition-${i}`).onchange = () => {
+                                const condition = document.getElementById(`condition-${i}`).value;
+                                socket.emit("set_condition", {timer: i, condition});
+                            };
                         }
 
                         // ✅ Update name (only if not actively editing)
                         const nameInput = document.getElementById(`name-${i}`);
                         if (document.activeElement !== nameInput) {
                             nameInput.value = t.name;
+                        }
+
+                        // ✅ Update condition (only if not actively editing)
+                        const condInput = document.getElementById(`condition-${i}`);
+                        if (condInput && document.activeElement !== condInput) {
+                            condInput.value = t.condition || "";
                         }
 
                         // ✅ Update timer display
