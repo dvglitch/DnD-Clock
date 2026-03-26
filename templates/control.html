@@ -50,47 +50,55 @@
         <body style="font-family:sans-serif; text-align:center; background:#f5f5f5;">
             <h1>Control Panel</h1>
 
-            <!-- GLOBAL CONTROLS -->
-            <div style="margin-bottom:20px;">
-                <button onclick="toggleAll()">▶ Start / Pause All</button>
-                <button onclick="resetAll()">🔄 Reset All</button>
+            <!-- ROW 1: Action Controls -->
+            <div style="display:flex; justify-content:center; align-items:flex-end; flex-wrap:wrap; gap:40px; margin-bottom:30px; background:white; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:80%; margin-left:auto; margin-right:auto;">
+                <div>
+                    <h3 style="margin:0 0 10px 0;">Global Actions</h3>
+                    <button id="toggleAllBtn" onclick="toggleAll()">▶ Start All</button>
+                    <button onclick="resetAll()">🔄 Reset All</button>
+                </div>
+
+                <div>
+                    <h3 style="margin:0 0 10px 0;">Set Default Time (s)</h3>
+                    <input id="allTime" type="number" value="180" style="width:80px; padding:5px;">
+                    <button onclick="setAll()">Apply</button>
+                </div>
+
+                <div>
+                    <h3 style="margin:0 0 10px 0;">Number of Timers</h3>
+                    <input id="numTimers" type="number" value="6" min="1" max="12" style="width:60px; padding:5px;">
+                    <button onclick="setNumTimers()">Apply</button>
+                </div>
             </div>
 
-            <h3>Set Default Timer (seconds)</h3>
-            <input id="allTime" type="number" value="180">
-            <button onclick="setAll()">Apply</button>
+            <!-- ROW 2: Toggles -->
+            <div style="display:flex; justify-content:center; align-items:flex-start; flex-wrap:wrap; gap:60px; margin-bottom:40px; background:white; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:80%; margin-left:auto; margin-right:auto;">
+                <div>
+                    <h3 style="margin:0 0 15px 0;">Master Controls</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="lockToggle" onchange="toggleLock()">
+                        <span class="slider"></span>
+                    </label>
+                    <div id="lockLabel" style="margin-top:10px; font-weight:bold;">Master Controls: 🔓 Unlocked</div>
+                </div>
 
-            <h3>Number of Timers</h3>
-            <input id="numTimers" type="number" value="6" min="1" max="12">
-            <button onclick="setNumTimers()">Apply</button>
-
-            <h3>Controls</h3>
-
-            <label class="switch">
-                <input type="checkbox" id="lockToggle" onchange="toggleLock()">
-                <span class="slider"></span>
-            </label>
-
-            <div id="lockLabel" style="margin-top:10px;">Master Controls: 🔓 Unlocked</div>
-
-            <div style="margin-top:20px;">
-                <label>Disable +-30s Remote Buttons:</label>
-                <div style="margin-top:10px;">
+                <div>
+                    <h3 style="margin:0 0 15px 0;">Disable +-30s Buttons</h3>
                     <label class="switch">
                         <input type="checkbox" id="adjustLockToggle" onchange="toggleAdjustLock()">
                         <span class="slider"></span>
                     </label>
+                    <div id="adjustLockLabel" style="margin-top:10px; font-weight:bold;">+-30s Controls: 🔓 Unlocked</div>
                 </div>
-                <div id="adjustLockLabel" style="margin-top:10px;">+-30s Controls: 🔓 Unlocked</div>
-            </div>
 
-            <div style="margin-top:20px; margin-bottom:10px;">
-                <label>DM Exclusive (hide last timer from display):</label>
-                <label class="switch">
-                    <input type="checkbox" id="dmExclusiveToggle" onchange="toggleDmExclusive()">
-                    <span class="slider"></span>
-                </label>
-                <div id="dmExclusiveLabel" style="margin-top:10px;">Off</div>
+                <div>
+                    <h3 style="margin:0 0 15px 0;">DM Exclusive Timer</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="dmExclusiveToggle" onchange="toggleDmExclusive()">
+                        <span class="slider"></span>
+                    </label>
+                    <div id="dmExclusiveLabel" style="margin-top:10px; font-weight:bold;">Off</div>
+                </div>
             </div>
 
             <!-- TIMERS -->
@@ -141,11 +149,14 @@
 
                 socket.on("update", (data) => {
                     const container = document.getElementById("timers");
+                    let anyRunning = false;
 
                     for (let i = 1; i <= numTimers; i++) {
                         const t = data[i];
                         if (!t) continue; // Skip if timer doesn't exist
                         
+                        if (t.running) anyRunning = true;
+
                         let div = document.getElementById(`timer-${i}`);
 
                         // ✅ Create once
@@ -223,6 +234,11 @@
                         if (t.remaining <= 0) bg = "#f7d4d4";
 
                         div.style.background = bg;
+                    }
+
+                    const toggleAllBtn = document.getElementById("toggleAllBtn");
+                    if (toggleAllBtn) {
+                        toggleAllBtn.innerText = anyRunning ? "⏸ Pause All" : "▶ Start All";
                     }
                 });
 
