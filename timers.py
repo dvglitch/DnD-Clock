@@ -33,7 +33,8 @@ def init_timers():
             "running": False,
             "last_update": time.time(),
             "name": settings.get("timer_names", {}).get(str(i), f"Timer {i}"),
-            "finished": False
+            "finished": False,
+            "raised_hand": False
         }
         for i in range(1, num_timers + 1)
     }

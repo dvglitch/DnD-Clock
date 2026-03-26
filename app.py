@@ -9,6 +9,9 @@ from routes.remote import remote_bp
 from socket_events import register_socket_events
 from timers import timer_loop
 from utils import get_local_ip
+import webbrowser
+from threading import Timer
+
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
@@ -29,4 +32,4 @@ if __name__ == "__main__":
     print(f"  Local:   http://localhost:5000")
     print(f"  Network: http://{ip}:5000\n")
 
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)

@@ -32,6 +32,10 @@
                 Reset
             </button>
 
+            <button id="handBtn" onclick="toggleHand()" style="font-size:24px; width:80%; margin:10px;">
+                Raise Hand
+            </button>
+
             <br>
 
             <button onclick="adjust(30)" style="font-size:20px; width:35%; margin:10px;">
@@ -149,6 +153,9 @@
                 // dynamic button text
                 document.getElementById("toggleBtn").innerText =
                     t.running ? "Pause" : "Start";
+                
+                document.getElementById("handBtn").innerText = 
+                    t.raised_hand ? "Lower Hand" : "Raise Hand";
             }
 
             function goBack() {
@@ -165,6 +172,11 @@
             function reset() {
                 if (locked) return;
                 socket.emit("reset", {timer: selected});
+            }
+
+            function toggleHand() {
+                if (locked) return;
+                socket.emit("toggle_hand", {timer: selected});
             }
 
             function adjust(delta) {
