@@ -24,6 +24,8 @@
             height: 34px;
             }
 
+            .compact-mode .hide-on-compact { display: none !important; }
+
             .switch input {
             display: none;
             }
@@ -66,7 +68,7 @@
             <h1>Control Panel</h1>
 
             <!-- ROW 1: Action Controls -->
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; justify-items:center; align-items:flex-end; margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:70%; margin-left:auto; margin-right:auto;">
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; justify-items:center; align-items:flex-end; margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin-left:auto; margin-right:auto;">
                 <div>
                     <h3 style="margin:0 0 10px 0;">Global Actions</h3>
                     <button id="toggleAllBtn" onclick="toggleAll()">▶ Start All</button>
@@ -87,7 +89,15 @@
             </div>
 
             <!-- ROW 2: Toggles -->
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; justify-items:center; align-items:flex-start; margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:70%; margin-left:auto; margin-right:auto;">
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:40px; justify-items:center; align-items:flex-start; margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin-left:auto; margin-right:auto;">
+                <div>
+                    <h3 style="margin:0 0 15px 0;">Compact UI</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="compactToggle" onchange="toggleCompact()">
+                        <span class="slider"></span>
+                    </label>
+                    <div id="compactLabel" style="margin-top:10px; font-weight:bold;">Off</div>
+                </div>
                 <div>
                     <h3 style="margin:0 0 15px 0;">Master Controls</h3>
                     <label class="switch">
@@ -222,13 +232,13 @@
                                     </div>
 
                                     <!-- Adjustments -->
-                                    <div style="display:flex; gap:10px;">
+                                    <div class="hide-on-compact" style="display:flex; gap:10px;">
                                         <button onclick="adjust(${i}, 30)" style="flex:1; margin:0;">+30s</button>
                                         <button onclick="adjust(${i}, -30)" style="flex:1; margin:0;">-30s</button>
                                     </div>
 
                                     <!-- Set custom time -->
-                                    <div style="display:flex; gap:10px;">
+                                    <div class="hide-on-compact" style="display:flex; gap:10px;">
                                         <input id="time-${i}" type="number" placeholder="Seconds" style="flex:2; margin:0; box-sizing:border-box;">
                                         <button onclick="setTimer(${i})" style="flex:1; margin:0;">Set</button>
                                     </div>
@@ -352,15 +362,38 @@
                     socket.emit("set_all_time", {seconds});
                 }
                 
-                function setNumTimers() {
-                    const num = document.getElementById("numTimers").value;
-                    socket.emit("set_num_timers", {num});
-                }
-                
                 function toggleDmExclusive() {
                     const toggle = document.getElementById("dmExclusiveToggle");
                     const exclusive = toggle.checked;
                     socket.emit("set_dm_exclusive", {exclusive});
+                }
+
+                // Initial Compact Load
+                function initializeCompactMode() {
+                    let compactPref = localStorage.getItem("compactMode");
+                    // Default to false if not setup
+                    if (compactPref === null) {
+                        compactPref = "false";
+                        localStorage.setItem("compactMode", "false");
+                    }
+                    const isCompact = compactPref === "true";
+                    document.getElementById("compactToggle").checked = isCompact;
+                    document.body.classList.toggle("compact-mode", isCompact);
+                    document.getElementById("compactLabel").innerText = isCompact ? "Compact: On" : "Compact: Off";
+                }
+                
+                function toggleCompact() {
+                    const isCompact = document.getElementById("compactToggle").checked;
+                    localStorage.setItem("compactMode", isCompact);
+                    document.body.classList.toggle("compact-mode", isCompact);
+                    document.getElementById("compactLabel").innerText = isCompact ? "Compact: On" : "Compact: Off";
+                }
+
+                initializeCompactMode();
+                
+                function setNumTimers() {
+                    const num = document.getElementById("numTimers").value;
+                    socket.emit("set_num_timers", {num});
                 }
                 
                 function updateDmExclusiveUI() {

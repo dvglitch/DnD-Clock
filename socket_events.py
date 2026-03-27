@@ -31,8 +31,11 @@ def register_socket_events(socketio):
             return
 
         t = tm.timers[data["timer"]]
-        t["running"] = not t["running"]
-        t["last_update"] = time.time()
+        if t["remaining"] > 0:
+            t["running"] = not t["running"]
+            t["last_update"] = time.time()
+        else:
+            t["running"] = False
 
     @socketio.on("reset")
     def reset(data):
@@ -55,8 +58,11 @@ def register_socket_events(socketio):
         any_running = any(t["running"] for t in tm.timers.values())
 
         for t in tm.timers.values():
-            t["running"] = not any_running
-            t["last_update"] = now
+            if t["remaining"] > 0:
+                t["running"] = not any_running
+                t["last_update"] = now
+            else:
+                t["running"] = False
 
 
     @socketio.on("reset_all")
