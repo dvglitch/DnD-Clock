@@ -78,6 +78,20 @@
                 </div>
             </div>
 
+            <!-- INITIATIVE SYSTEM -->
+            <div style="margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin-left:auto; margin-right:auto;">
+                <h3 style="margin:0 0 10px 0; border-bottom:1px solid #444; padding-bottom:10px; text-align:center;">Initiative Calculator</h3>
+                <div style="display:flex; justify-content:center; gap:20px; align-items:center; flex-wrap:wrap; margin-top:15px;">
+                    <select id="initMode" style="background:#333; color:white; border:1px solid #555; padding:8px; border-radius:5px; font-family:'Inter', sans-serif;">
+                        <option value="proportional">Proportional (Default Time)</option>
+                        <option value="interval">Interval (Max time becomes Default)</option>
+                    </select>
+                    <input id="initInterval" type="number" placeholder="Interval (s)" value="30" style="width:100px; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:5px;">
+                    <button onclick="calculateInitiatives()" style="background:#1e7f3f; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">🎲 Sync Initiatives</button>
+                    <div style="color:#aaa; font-size:0.9em;">Assign an Initiative order (1-N, where 1=First) to each timer below to calculate starting times.</div>
+                </div>
+            </div>
+
             <!-- TIMERS -->
             <h3>Individual Timer Controls</h3>
             <div id="timers" style="

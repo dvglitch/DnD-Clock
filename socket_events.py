@@ -145,3 +145,51 @@ def register_socket_events(socketio):
         tm.control_state["theme"] = tm.theme
         socketio.emit("control_update", tm.control_state)
         save_current_state()
+
+    @socketio.on("calculate_initiatives")
+    def calculate_initiatives(data):
+        mode = data.get("mode", "proportional")
+        interval = data.get("interval", 30)
+        ranks = data.get("ranks", {})  # e.g., { "1": 2, "2": 1, ... }
+        
+        if not ranks:
+            return
+            
+        valid_ranks = {int(k): int(v) for k, v in ranks.items() if int(k) in tm.timers}
+        if not valid_ranks:
+            return
+            
+        max_rank = max(valid_ranks.values())
+        min_rank = min(valid_ranks.values())
+        
+        if mode == "interval":
+            new_max_time = (max_rank - min_rank) * interval if max_rank > min_rank else 0
+            if new_max_time > 0:
+                tm.DEFAULT_DURATION = new_max_time
+                tm.control_state["DEFAULT_DURATION"] = tm.DEFAULT_DURATION
+                socketio.emit("control_update", tm.control_state)
+                
+        now = time.time()
+        
+        for k_int, rank in valid_ranks.items():
+            t = tm.timers[k_int]
+            
+            if mode == "proportional":
+                if max_rank > min_rank:
+                    time_val = (rank - min_rank) / (max_rank - min_rank) * tm.DEFAULT_DURATION
+                else:
+                    time_val = 0
+            else: # interval
+                time_val = (rank - min_rank) * interval
+                
+            t["remaining"] = int(time_val)
+            t["duration"] = tm.DEFAULT_DURATION
+            t["running"] = False
+            t["last_update"] = now
+            t["finished"] = False
+            
+            # also remove from finish order just in case
+            if k_int in tm.finish_order:
+                tm.finish_order.remove(k_int)
+                
+        save_current_state()

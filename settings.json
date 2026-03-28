@@ -1,14 +1,16 @@
 {
-    "num_timers": 4,
+    "num_timers": 6,
     "dm_exclusive": true,
     "locked": false,
     "adjust_locked": false,
-    "DEFAULT_DURATION": 120,
+    "DEFAULT_DURATION": 225,
     "timer_names": {
         "1": "Angel",
-        "2": "Jacob",
+        "2": "Hailey",
         "3": "Alastor",
-        "4": "Timer 4"
+        "4": "Big bad",
+        "5": "Timer 5",
+        "6": "Timer 6"
     },
     "theme": "tavern"
 }

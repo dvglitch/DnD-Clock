@@ -76,28 +76,39 @@ socket.on("update", (data) => {
 
             div.innerHTML = `
                 <div style="display:flex; flex-direction:column; gap:10px;">
-                    <!-- Top Row: Name and Condition side-by-side -->
+                    <!-- Top Row: Name and Condition -->
                     <div style="display:flex; gap:10px;">
                         <input 
                             type="text"
                             id="name-${i}" 
                             placeholder="Timer Name"
-                            style="flex:3; box-sizing:border-box; font-weight:bold; font-size:1.1em; margin:0;"
+                            style="flex:1; min-width:0; box-sizing:border-box; font-weight:bold; font-size:1.1em; margin:0;"
                         >
                         <input 
                             type="text"
                             id="condition-${i}" 
                             placeholder="Condition"
-                            style="flex:2; box-sizing:border-box; font-size:1em; margin:0;"
+                            style="flex:1; min-width:0; box-sizing:border-box; font-size:1em; margin:0;"
                         >
                     </div>
 
                     <!-- Time and Status inline -->
-                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin:10px 0;">
-                        <div id="time-display-${i}" style="font-size:48px; font-weight:bold; line-height:1; font-variant-numeric: tabular-nums;"></div>
-                        <div style="text-align:right;">
-                            <div id="status-${i}" style="font-size:14px; text-transform:uppercase; letter-spacing:1px; opacity:0.8;"></div>
-                            <div id="position-${i}" style="font-size:18px; font-weight:bold; margin-top:4px;"></div>
+                    <div style="display:flex; justify-content:space-between; align-items:stretch; margin:10px 0;">
+                        <div style="display:flex; flex-direction:column; justify-content:flex-end;">
+                            <div id="time-display-${i}" style="font-size:48px; font-weight:bold; line-height:1; font-variant-numeric: tabular-nums;"></div>
+                        </div>
+                        <div style="display:flex; align-items:stretch; gap:10px; text-align:right;">
+                            <div style="display:flex; flex-direction:column; justify-content:space-evenly; padding:4px 0;">
+                                <div id="status-${i}" style="font-size:14px; text-transform:uppercase; letter-spacing:1px; opacity:0.8; line-height:1;"></div>
+                                <div id="position-${i}" style="font-size:18px; font-weight:bold; line-height:1; min-height:18px;"></div>
+                            </div>
+                            <input
+                                type="number"
+                                id="init-rank-${i}"
+                                placeholder="Initiative"
+                                title="Initiative (1=First)"
+                                style="width:110px; height:auto; box-sizing:border-box; font-size:1.3em; margin:0; padding:4px; text-align:center;"
+                            >
                         </div>
                     </div>
 
@@ -328,4 +339,25 @@ function updateLockUI() {
             adjustLabel.innerText = "+-30s Controls: 🔓 Unlocked";
         }
     }
+}
+
+function calculateInitiatives() {
+    const mode = document.getElementById("initMode").value;
+    const intervalStr = document.getElementById("initInterval").value;
+    const interval = parseInt(intervalStr) || 30;
+    
+    const ranks = {};
+    for (let i = 1; i <= numTimers; i++) {
+        const val = document.getElementById(`init-rank-${i}`)?.value;
+        if (val) {
+            ranks[i] = parseInt(val);
+        }
+    }
+    
+    if (Object.keys(ranks).length === 0) {
+        alert("Please assign an Initiative order (1, 2, 3...) to at least one timer.");
+        return;
+    }
+    
+    socket.emit("calculate_initiatives", { mode, interval, ranks });
 }

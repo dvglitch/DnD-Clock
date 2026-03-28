@@ -50,7 +50,7 @@ socket.on("update", (data) => {
 
         let boxShadow = "0 4px 10px rgba(0,0,0,0.5)";
         if (t.raised_hand) {
-            boxShadow = "0 0 25px 8px rgba(255, 215, 0, 0.8), " + boxShadow;
+            boxShadow = "inset 0 0 50px 10px rgba(255, 215, 0, 0.5), inset 0 0 20px 5px rgba(255, 215, 0, 0.8), " + boxShadow;
         }
 
         const div = document.createElement("div");
