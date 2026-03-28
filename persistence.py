@@ -9,7 +9,8 @@ DEFAULT_SETTINGS = {
     "locked": False,
     "adjust_locked": False,
     "DEFAULT_DURATION": 180,
-    "timer_names": {}
+    "timer_names": {},
+    "theme": "tavern"
 }
 
 def load_settings():

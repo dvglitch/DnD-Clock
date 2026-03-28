@@ -1,0 +1,104 @@
+/* Base Fonts and Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    color: white;
+    text-align: center;
+    margin: 0;
+    min-height: 100vh;
+}
+h1, h2, h3 { 
+    font-family: 'Cinzel', serif; 
+    color: #f5f5f5; 
+    text-shadow: 1px 1px 3px black; 
+    margin-top: 20px;
+}
+button { 
+    background: #555; 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-family: 'Inter', sans-serif; 
+    font-weight: bold;
+    transition: background 0.3s; 
+    box-sizing: border-box;
+    vertical-align: middle;
+    padding: 10px 20px;
+    font-size: 16px;
+    min-height: 42px;
+}
+button:hover { 
+    background: #777; 
+}
+/* Base Input Styles */
+input[type=number], input[type=text] { 
+    background: #222; 
+    color: white; 
+    border: 1px solid #555; 
+    padding: 0 10px; 
+    border-radius: 5px; 
+    font-size: 16px; 
+    text-align: center; 
+    box-sizing: border-box; 
+    height: 42px; 
+    vertical-align: middle; 
+    font-family: 'Inter', sans-serif; 
+}
+/* Theme Classes */
+body.theme-tavern.page-control, body.theme-tavern.page-display {
+    background: linear-gradient(rgba(17,17,17,0.85), rgba(17,17,17,0.88)), url('/static/images/tavern.png') no-repeat center center fixed;
+    background-size: cover;
+}
+body.theme-tavern.page-remote, body.theme-tavern.page-dm {
+    background: linear-gradient(rgba(15, 12, 10, 0.7), rgba(10, 5, 0, 0.85)), url('/static/images/tavern_table.png') no-repeat center center fixed;
+    background-size: cover;
+}
+body.theme-stone {
+    background: linear-gradient(rgba(17,17,17,0.85), rgba(17,17,17,0.88)), url('/static/images/stone.png') repeat;
+}
+body.theme-table {
+    background: linear-gradient(rgba(15, 12, 10, 0.7), rgba(10, 5, 0, 0.85)), url('/static/images/tavern_table.png') no-repeat center center fixed;
+    background-size: cover;
+}
+body.theme-forest.page-control, body.theme-forest.page-display {
+    background: linear-gradient(rgba(15, 20, 15, 0.6), rgba(5, 10, 5, 0.85)), url('/static/images/mystical_forest.png') no-repeat center center fixed;
+    background-size: cover;
+}
+body.theme-forest.page-remote, body.theme-forest.page-dm {
+    background: linear-gradient(rgba(15, 20, 15, 0.75), rgba(5, 10, 5, 0.9)), url('/static/images/forest.png') no-repeat center center fixed;
+    background-size: cover;
+}
+body.theme-dungeon.page-control, body.theme-dungeon.page-display {
+    background: linear-gradient(rgba(12, 10, 15, 0.8), rgba(5, 2, 10, 0.95)), url('/static/images/dungeon.png') no-repeat center center fixed;
+    background-size: cover;
+}
+body.theme-dungeon.page-remote, body.theme-dungeon.page-dm {
+    background: linear-gradient(rgba(17,17,17,0.85), rgba(17,17,17,0.88)), url('/static/images/stone.png') repeat;
+}
+body.theme-parchment {
+    /* Much darker linear gradient for better contrast on text */
+    background: linear-gradient(rgba(15, 10, 5, 0.85), rgba(5, 5, 0, 0.95)), url('/static/images/parchment.png') repeat;
+    background-size: cover;
+}
+/* Control Page specific */
+.timer-running button { background: #2b9952; }
+.timer-running button:hover { background: #3bcc6b; }
+.timer-running input[type=number], .timer-running input[type=text] { background: #14532a; border-color: #2b9952; }
+.timer-finished button { background: #c44141; }
+.timer-finished button:hover { background: #e04a4a; }
+.timer-finished input[type=number], .timer-finished input[type=text] { background: #7a2525; border-color: #c44141; }
+.switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+.compact-mode .hide-on-compact { display: none !important; }
+.switch input { display: none; }
+.slider { position: absolute; cursor: pointer; background-color: #4CAF50; border-radius: 34px; top: 0; left: 0; right: 0; bottom: 0; transition: 0.3s; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+.slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: 0.3s; }
+input:checked + .slider { background-color: #f44336; }
+input:checked + .slider:before { transform: translateX(26px); }
+/* Remote Page specific */
+.timer-card { padding: 15px 20px; border-radius: 12px; margin-bottom: 15px; background: linear-gradient(145deg, #3a3a3a, #2a2a2a); border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1); }
+.timer-card button { padding: 15px 20px; font-size: 18px; }
+.timer-card:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.15); }
+.timer-card.running { background: linear-gradient(145deg, #1e7f3f, #155e2d); border-color: rgba(255,255,255,0.15); }
+.timer-card.finished { background: linear-gradient(145deg, #a83232, #7c2222); border-color: rgba(255,255,255,0.15); }
+.timer-header { display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; }
+.timer-body { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }

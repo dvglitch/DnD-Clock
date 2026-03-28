@@ -10,6 +10,7 @@ dm_exclusive = settings["dm_exclusive"]
 locked = settings.get("locked", False)
 adjust_locked = settings.get("adjust_locked", False)
 DEFAULT_DURATION = settings["DEFAULT_DURATION"]
+theme = settings.get("theme", "tavern")
 
 # Timer state (will be populated dynamically)
 timers = {}
@@ -20,7 +21,8 @@ control_state = {
     "adjust_locked": adjust_locked,
     "num_timers": num_timers,
     "dm_exclusive": dm_exclusive,
-    "DEFAULT_DURATION": DEFAULT_DURATION
+    "DEFAULT_DURATION": DEFAULT_DURATION,
+    "theme": theme
 }
 
 def init_timers():

@@ -10,7 +10,8 @@ def register_socket_events(socketio):
             "locked": tm.control_state["locked"],
             "adjust_locked": tm.control_state.get("adjust_locked", False),
             "DEFAULT_DURATION": tm.DEFAULT_DURATION,
-            "timer_names": {str(k): v["name"] for k, v in tm.timers.items()}
+            "timer_names": {str(k): v["name"] for k, v in tm.timers.items()},
+            "theme": tm.theme
         }
         save_settings(settings)
 
@@ -135,5 +136,12 @@ def register_socket_events(socketio):
     def set_dm_exclusive(data):
         tm.dm_exclusive = bool(data["exclusive"])
         tm.control_state["dm_exclusive"] = tm.dm_exclusive
+        socketio.emit("control_update", tm.control_state)
+        save_current_state()
+
+    @socketio.on("set_theme")
+    def set_theme(data):
+        tm.theme = data["theme"]
+        tm.control_state["theme"] = tm.theme
         socketio.emit("control_update", tm.control_state)
         save_current_state()
