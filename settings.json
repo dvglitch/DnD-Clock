@@ -2,7 +2,7 @@
     "num_timers": 5,
     "dm_exclusive": true,
     "locked": false,
-    "adjust_locked": false,
+    "adjust_locked": true,
     "DEFAULT_DURATION": 180,
     "timer_names": {
         "1": "Angel",
