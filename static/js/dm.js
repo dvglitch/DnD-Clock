@@ -1,4 +1,4 @@
-const socket = io("http://" + location.hostname + ":5000");
+const socket = io();
 
 let TIMER_ID = null; // 👈 admin timer
 

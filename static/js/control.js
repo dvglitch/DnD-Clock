@@ -1,4 +1,4 @@
-const socket = io("http://" + location.hostname + ":5000");
+const socket = io();
 
 function formatTime(s) {
     let m = Math.floor(s / 60);
