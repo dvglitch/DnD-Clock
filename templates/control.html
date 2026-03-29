@@ -5,102 +5,112 @@
             <link rel="stylesheet" href="/static/css/styles.css">
         </head>
         <body class="theme-tavern page-control">
-            <h1>Control Panel</h1>
+            <!-- Navigation -->
+            <button id="nav-left" class="nav-btn" onclick="showSlide('prev')" style="position:fixed; top:50%; left:0; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; font-size:40px; padding:20px 10px; cursor:pointer; z-index:1000; border-radius:0 10px 10px 0; transition: background 0.2s;">&#10094;</button>
+            <button id="nav-right" class="nav-btn" onclick="showSlide('next')" style="position:fixed; top:50%; right:0; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; font-size:40px; padding:20px 10px; cursor:pointer; z-index:1000; border-radius:10px 0 0 10px; transition: background 0.2s;">&#10095;</button>
 
-            <!-- ROW 1: Action Controls -->
-            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:40px; justify-items:center; align-items:flex-end; margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin-left:auto; margin-right:auto;">
-                <div>
-                    <h3 style="margin:0 0 10px 0;">Global Actions</h3>
-                    <button id="toggleAllBtn" onclick="toggleAll()">▶ Start All</button>
-                    <button onclick="resetAll()">🔄 Reset All</button>
+            <h1 style="margin-bottom:30px;">Control Panel</h1>
+
+            <!-- SLIDE 1: SETUP & INITIATIVE -->
+            <div id="slide-1" class="slide" style="display:none; animation:fadeIn 0.3s; padding-bottom:40px;">
+                <h2 style="margin-bottom:30px;">Settings & Constraints</h2>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; justify-items:center; align-items:flex-start; background:#222; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin:auto;">
+                    <div>
+                        <h3 style="margin:0 0 10px 0;">Background Theme</h3>
+                        <select id="themeSelect" onchange="changeTheme()" style="background:#333; color:white; border:1px solid #555; padding:8px 10px; border-radius:5px; font-size:16px; font-family:'Inter', sans-serif;">
+                            <option value="tavern">Tavern Room</option>
+                            <option value="table">Wooden Table</option>
+                            <option value="stone">Stone Floor</option>
+                            <option value="forest">Dark Forest</option>
+                            <option value="dungeon">Dungeon Wall</option>
+                            <option value="parchment">Ancient Parchment</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 10px 0;">Number of Timers</h3>
+                        <input id="numTimers" type="number" value="6" min="1" max="12" style="width:70px; margin:5px;">
+                        <button onclick="setNumTimers()">Apply</button>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 10px 0;">Set Default Time (s)</h3>
+                        <input id="allTime" type="number" value="180" style="width:80px; margin:5px;">
+                        <button onclick="setAll()">Apply</button>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 15px 0;">Master Controls</h3>
+                        <label class="switch">
+                            <input type="checkbox" id="lockToggle1" onchange="toggleLock('lockToggle1')">
+                            <span class="slider"></span>
+                        </label>
+                        <div id="lockLabel1" style="margin-top:10px; font-weight:bold;">Master Controls: 🔓 Unlocked</div>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 15px 0;">Disable +-30s Buttons</h3>
+                        <label class="switch">
+                            <input type="checkbox" id="adjustLockToggle" onchange="toggleAdjustLock()">
+                            <span class="slider"></span>
+                        </label>
+                        <div id="adjustLockLabel" style="margin-top:10px; font-weight:bold;">+-30s Controls: 🔓 Unlocked</div>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 15px 0;">DM Exclusive Timer</h3>
+                        <label class="switch">
+                            <input type="checkbox" id="dmExclusiveToggle" onchange="toggleDmExclusive()">
+                            <span class="slider"></span>
+                        </label>
+                        <div id="dmExclusiveLabel" style="margin-top:10px; font-weight:bold;">Off</div>
+                    </div>
                 </div>
 
-                <div>
-                    <h3 style="margin:0 0 10px 0;">Set Default Time (s)</h3>
-                    <input id="allTime" type="number" value="180" style="width:80px; margin: 5px;">
-                    <button onclick="setAll()">Apply</button>
-                </div>
+                <hr style="border:1px solid #444; margin:40px auto; width:80%;">
 
-                <div>
-                    <h3 style="margin:0 0 10px 0;">Number of Timers</h3>
-                    <input id="numTimers" type="number" value="6" min="1" max="12" style="width:60px; margin: 5px;">
-                    <button onclick="setNumTimers()">Apply</button>
-                </div>
-
-                <div>
-                    <h3 style="margin:0 0 10px 0;">Background Theme</h3>
-                    <select id="themeSelect" onchange="changeTheme()" style="background:#222; color:white; border:1px solid #555; padding:5px 10px; border-radius:5px; font-size:16px; font-family:'Inter', sans-serif;">
-                        <option value="tavern">Tavern Room</option>
-                        <option value="table">Wooden Table</option>
-                        <option value="stone">Stone Floor</option>
-                        <option value="forest">Dark Forest</option>
-                        <option value="dungeon">Dungeon Wall</option>
-                        <option value="parchment">Ancient Parchment</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- ROW 2: Toggles -->
-            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:40px; justify-items:center; align-items:flex-start; margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin-left:auto; margin-right:auto;">
-                <div>
-                    <h3 style="margin:0 0 15px 0;">Compact UI</h3>
-                    <label class="switch">
-                        <input type="checkbox" id="compactToggle" onchange="toggleCompact()">
-                        <span class="slider"></span>
-                    </label>
-                    <div id="compactLabel" style="margin-top:10px; font-weight:bold;">Off</div>
-                </div>
-                <div>
-                    <h3 style="margin:0 0 15px 0;">Master Controls</h3>
-                    <label class="switch">
-                        <input type="checkbox" id="lockToggle" onchange="toggleLock()">
-                        <span class="slider"></span>
-                    </label>
-                    <div id="lockLabel" style="margin-top:10px; font-weight:bold;">Master Controls: 🔓 Unlocked</div>
-                </div>
-
-                <div>
-                    <h3 style="margin:0 0 15px 0;">Disable +-30s Buttons</h3>
-                    <label class="switch">
-                        <input type="checkbox" id="adjustLockToggle" onchange="toggleAdjustLock()">
-                        <span class="slider"></span>
-                    </label>
-                    <div id="adjustLockLabel" style="margin-top:10px; font-weight:bold;">+-30s Controls: 🔓 Unlocked</div>
-                </div>
-
-                <div>
-                    <h3 style="margin:0 0 15px 0;">DM Exclusive Timer</h3>
-                    <label class="switch">
-                        <input type="checkbox" id="dmExclusiveToggle" onchange="toggleDmExclusive()">
-                        <span class="slider"></span>
-                    </label>
-                    <div id="dmExclusiveLabel" style="margin-top:10px; font-weight:bold;">Off</div>
-                </div>
-            </div>
-
-            <!-- INITIATIVE SYSTEM -->
-            <div style="margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin-left:auto; margin-right:auto;">
-                <h3 style="margin:0 0 10px 0; border-bottom:1px solid #444; padding-bottom:10px; text-align:center;">Initiative Calculator</h3>
-                <div style="display:flex; justify-content:center; gap:20px; align-items:center; flex-wrap:wrap; margin-top:15px;">
-                    <select id="initMode" style="background:#333; color:white; border:1px solid #555; padding:8px; border-radius:5px; font-family:'Inter', sans-serif;">
-                        <option value="proportional">Proportional (Default Time)</option>
-                        <option value="interval">Interval (Max time becomes Default)</option>
-                    </select>
-                    <input id="initInterval" type="number" placeholder="Interval (s)" value="30" style="width:100px; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:5px;">
-                    <button onclick="calculateInitiatives()" style="background:#1e7f3f; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">🎲 Sync Initiatives</button>
-                    <div style="color:#aaa; font-size:0.9em;">Assign an Initiative order (1-N, where 1=First) to each timer below to calculate starting times.</div>
+                <h2 style="margin-bottom:30px;">Initiative Sync</h2>
+                <div style="margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin:auto;">
+                    <div style="display:flex; justify-content:center; gap:20px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
+                        <select id="initMode" style="background:#333; color:white; border:1px solid #555; padding:8px; border-radius:5px; font-family:'Inter', sans-serif;">
+                            <option value="proportional">Proportional (Default Time)</option>
+                            <option value="interval">Interval (Max time becomes Default)</option>
+                        </select>
+                        <input id="initInterval" type="number" placeholder="Interval (s)" value="30" style="width:100px; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:5px;">
+                        <button onclick="calculateInitiatives()" style="background:#1e7f3f; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">🎲 Sync Initiatives</button>
+                    </div>
+                    <div style="color:#aaa; font-size:0.9em;">Assign an Initiative order (1-N, where 1=First) below to automatically calculate starting times.</div>
+                    
+                    <div id="init-list" style="margin-top:30px; display:grid; grid-template-columns:repeat(2, 1fr); gap:15px; text-align:left;"></div>
                 </div>
             </div>
 
-            <!-- TIMERS -->
-            <h3>Individual Timer Controls</h3>
-            <div id="timers" style="
-                display:grid;
-                grid-template-columns:repeat(3,1fr);
-                gap:20px;
-                padding:20px;
-            "></div>
+            <!-- SLIDE 2: COMBAT -->
+            <div id="slide-2" class="slide" style="display:block; animation:fadeIn 0.3s; padding-bottom:40px;">
+                <h2 style="margin-bottom:20px;">Active Combat</h2>
+                <div style="display:flex; justify-content:center; gap:40px; align-items:center; background:#222; padding:15px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin:auto; margin-bottom:30px;">
+                    <div>
+                        <button id="toggleAllBtn" onclick="toggleAll()">▶ Start All</button>
+                        <button onclick="resetAll()">🔄 Reset All</button>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold; margin-right:15px; opacity:0.8;">Compact UI</span>
+                        <label class="switch" style="vertical-align:middle;">
+                            <input type="checkbox" id="compactToggle" onchange="toggleCompact()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <span style="font-weight:bold; margin-right:15px; opacity:0.8;">Master Lock</span>
+                        <label class="switch" style="vertical-align:middle;">
+                            <input type="checkbox" id="lockToggle3" onchange="toggleLock('lockToggle3')">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
 
+                <div id="timers" style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px; padding:20px;"></div>
+            </div>
+
+            <style>
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                .nav-btn:hover { background: rgba(0,0,0,0.8); }
+            </style>
             <script src="/static/js/control.js"></script>
         </body>
     </html>

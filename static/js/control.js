@@ -32,14 +32,15 @@ socket.on("control_update", (data) => {
     updateLockUI();
     updateDmExclusiveUI();
     
-    // Remove old timer divs that are beyond numTimers
+    // Remove old timer divs
     for (let i = numTimers + 1; i <= 12; i++) {
         const div = document.getElementById(`timer-${i}`);
-        if (div) {
-            div.remove();
-        }
+        if (div) div.remove();
+        
+        const initDiv = document.getElementById(`init-row-${i}`);
+        if (initDiv) initDiv.remove();
     }
-}); 
+});
 
 function updateThemeClass(themeName) {
     document.body.className = `theme-${themeName} page-control`;
@@ -93,22 +94,11 @@ socket.on("update", (data) => {
                     </div>
 
                     <!-- Time and Status inline -->
-                    <div style="display:flex; justify-content:space-between; align-items:stretch; margin:10px 0;">
-                        <div style="display:flex; flex-direction:column; justify-content:flex-end;">
-                            <div id="time-display-${i}" style="font-size:48px; font-weight:bold; line-height:1; font-variant-numeric: tabular-nums;"></div>
-                        </div>
-                        <div style="display:flex; align-items:stretch; gap:10px; text-align:right;">
-                            <div style="display:flex; flex-direction:column; justify-content:space-evenly; padding:4px 0;">
-                                <div id="status-${i}" style="font-size:14px; text-transform:uppercase; letter-spacing:1px; opacity:0.8; line-height:1;"></div>
-                                <div id="position-${i}" style="font-size:18px; font-weight:bold; line-height:1; min-height:18px;"></div>
-                            </div>
-                            <input
-                                type="number"
-                                id="init-rank-${i}"
-                                placeholder="Initiative"
-                                title="Initiative (1=First)"
-                                style="width:110px; height:auto; box-sizing:border-box; font-size:1.3em; margin:0; padding:4px; text-align:center;"
-                            >
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin:10px 0;">
+                        <div id="time-display-${i}" style="font-size:48px; font-weight:bold; line-height:1; font-variant-numeric: tabular-nums;"></div>
+                        <div style="text-align:right;">
+                            <div id="status-${i}" style="font-size:14px; text-transform:uppercase; letter-spacing:1px; opacity:0.8;"></div>
+                            <div id="position-${i}" style="font-size:18px; font-weight:bold; margin-top:4px;"></div>
                         </div>
                     </div>
 
@@ -207,6 +197,30 @@ socket.on("update", (data) => {
             pb.style.width = `${pct}%`;
             pb.style.background = pbColor;
         }
+
+        // ✅ Update Initiative List purely for Slide 1
+        const initListContainer = document.getElementById("init-list");
+        let initDiv = document.getElementById(`init-row-${i}`);
+        if (!initDiv) {
+            initDiv = document.createElement("div");
+            initDiv.id = `init-row-${i}`;
+            initDiv.style = "display:flex; justify-content:space-between; align-items:stretch; background:#333; padding:15px; border-radius:8px; border:1px solid #444; gap:10px;";
+            initDiv.innerHTML = `
+                <input type="text" id="init-name-${i}" placeholder="Timer ${i} Name" style="flex:1; min-width:0; background:#222; color:white; border:1px solid #555; border-radius:5px; padding:8px; font-size:18px; font-weight:bold; font-family:'Inter', sans-serif;">
+                <input type="number" id="init-rank-${i}" placeholder="Initiative" style="width:100px; box-sizing:border-box; font-size:1.2em; padding:8px; text-align:center; background:#222; color:white; border:1px solid #555; border-radius:5px;">
+            `;
+            initListContainer.appendChild(initDiv);
+
+            document.getElementById(`init-name-${i}`).onchange = () => {
+                const name = document.getElementById(`init-name-${i}`).value;
+                socket.emit("set_name", {timer: i, name});
+            };
+        }
+        
+        const initNameInput = document.getElementById(`init-name-${i}`);
+        if (initNameInput && document.activeElement !== initNameInput) {
+            initNameInput.value = t.name || `Timer ${i}`;
+        }
     }
 
     const toggleAllBtn = document.getElementById("toggleAllBtn");
@@ -271,14 +285,12 @@ function initializeCompactMode() {
     const isCompact = compactPref === "true";
     document.getElementById("compactToggle").checked = isCompact;
     document.body.classList.toggle("compact-mode", isCompact);
-    document.getElementById("compactLabel").innerText = isCompact ? "Compact: On" : "Compact: Off";
 }
 
 function toggleCompact() {
     const isCompact = document.getElementById("compactToggle").checked;
     localStorage.setItem("compactMode", isCompact);
     document.body.classList.toggle("compact-mode", isCompact);
-    document.getElementById("compactLabel").innerText = isCompact ? "Compact: On" : "Compact: Off";
 }
 
 initializeCompactMode();
@@ -301,8 +313,9 @@ function updateDmExclusiveUI() {
     }
 }
                   
-function toggleLock() {
-    const toggle = document.getElementById("lockToggle");
+function toggleLock(sourceId) {
+    const toggle = document.getElementById(sourceId);
+    if (!toggle) return;
     locked = toggle.checked;
 
     socket.emit("lock_controls", {locked});
@@ -318,28 +331,49 @@ function toggleAdjustLock() {
 }
 
 function updateLockUI() {
-    const toggle = document.getElementById("lockToggle");
-    const label = document.getElementById("lockLabel");
+    const toggle1 = document.getElementById("lockToggle1");
+    const toggle3 = document.getElementById("lockToggle3");
+    const label1 = document.getElementById("lockLabel1");
     const adjustToggle = document.getElementById("adjustLockToggle");
     const adjustLabel = document.getElementById("adjustLockLabel");
 
-    toggle.checked = locked;
+    if (toggle1) toggle1.checked = locked;
+    if (toggle3) toggle3.checked = locked;
     if (adjustToggle) adjustToggle.checked = adjustLocked;
 
-    if (locked) {
-        label.innerText = "Master Controls: 🔒 Locked";
-    } else {
-        label.innerText = "Master Controls: 🔓 Unlocked";
+    if (label1) {
+        label1.innerText = locked ? "Master Controls: 🔒 Locked" : "Master Controls: 🔓 Unlocked";
     }
 
     if (adjustLabel) {
-        if (adjustLocked) {
-            adjustLabel.innerText = "+-30s Controls: 🔒 Locked";
-        } else {
-            adjustLabel.innerText = "+-30s Controls: 🔓 Unlocked";
-        }
+        adjustLabel.innerText = adjustLocked ? "+-30s Controls: 🔒 Locked" : "+-30s Controls: 🔓 Unlocked";
     }
 }
+
+// SLIDE MANAGEMENT
+let currentSlide = 2; // Default to combat
+
+function showSlide(dir) {
+    if (dir === 'next') currentSlide++;
+    else if (dir === 'prev') currentSlide--;
+    else currentSlide = dir;
+
+    if (currentSlide > 2) currentSlide = 1;
+    if (currentSlide < 1) currentSlide = 2;
+
+    for (let i = 1; i <= 2; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (slide) slide.style.display = (i === currentSlide) ? 'block' : 'none';
+    }
+}
+
+window.addEventListener('keydown', (e) => {
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+    
+    if (e.key === 'ArrowRight') showSlide('next');
+    if (e.key === 'ArrowLeft') showSlide('prev');
+});
 
 function calculateInitiatives() {
     const mode = document.getElementById("initMode").value;
