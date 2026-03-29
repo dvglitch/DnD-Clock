@@ -6,7 +6,6 @@ function formatTime(s) {
     return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
-let numTimers = 6;
 let dmExclusive = false;
 let locked = false;
 let adjustLocked = false;
@@ -14,10 +13,8 @@ let adjustLocked = false;
 socket.on("control_update", (data) => {
     locked = data.locked || false;
     adjustLocked = data.adjust_locked || false;
-    numTimers = data.num_timers || 6;
     dmExclusive = data.dm_exclusive || false;
     
-    document.getElementById("numTimers").value = numTimers;
     document.getElementById("dmExclusiveToggle").checked = dmExclusive;
     
     if (data.DEFAULT_DURATION !== undefined) {
@@ -29,18 +26,25 @@ socket.on("control_update", (data) => {
         updateThemeClass(data.theme);
     }
     
+    if (data.custom_bg_url !== undefined) {
+        document.getElementById("customBg").value = data.custom_bg_url;
+        applyCustomBg(data.custom_bg_url);
+    }
+    
     updateLockUI();
     updateDmExclusiveUI();
-    
-    // Remove old timer divs
-    for (let i = numTimers + 1; i <= 12; i++) {
-        const div = document.getElementById(`timer-${i}`);
-        if (div) div.remove();
-        
-        const initDiv = document.getElementById(`init-row-${i}`);
-        if (initDiv) initDiv.remove();
-    }
 });
+
+function applyCustomBg(url) {
+    if (url && url.trim() !== "") {
+        document.body.style.backgroundImage = `url('${url}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.backgroundAttachment = "fixed";
+    } else {
+        document.body.style.backgroundImage = "";
+    }
+}
 
 function updateThemeClass(themeName) {
     document.body.className = `theme-${themeName} page-control`;
@@ -52,10 +56,22 @@ function updateThemeClass(themeName) {
 socket.on("update", (data) => {
     const container = document.getElementById("timers");
     let anyRunning = false;
+    
+    const currentIds = Object.keys(data).map(Number).sort((a,b) => a - b);
+    
+    // Remove obsolete divs
+    Array.from(container.children).forEach(child => {
+        const idNum = Number(child.id.replace("timer-", ""));
+        if (!currentIds.includes(idNum)) {
+            child.remove();
+            const initDiv = document.getElementById(`init-row-${idNum}`);
+            if (initDiv) initDiv.remove();
+        }
+    });
 
-    for (let i = 1; i <= numTimers; i++) {
+    for (let i of currentIds) {
         const t = data[i];
-        if (!t) continue; // Skip if timer doesn't exist
+        if (!t) continue;
         
         if (t.running) anyRunning = true;
 
@@ -91,6 +107,7 @@ socket.on("update", (data) => {
                             placeholder="Condition"
                             style="flex:1; min-width:0; box-sizing:border-box; font-size:1em; margin:0;"
                         >
+                        <button onclick="deleteTimer(${i})" style="background:#a83232; color:white; border:none; border-radius:5px; cursor:pointer;" title="Delete Timer">X</button>
                     </div>
 
                     <!-- Time and Status inline -->
@@ -295,9 +312,19 @@ function toggleCompact() {
 
 initializeCompactMode();
 
-function setNumTimers() {
-    const num = document.getElementById("numTimers").value;
-    socket.emit("set_num_timers", {num});
+function addTimer() {
+    socket.emit("add_timer");
+}
+
+function deleteTimer(timer) {
+    if(confirm("Are you sure you want to delete this combatant?")) {
+        socket.emit("delete_timer", {timer});
+    }
+}
+
+function setCustomBg() {
+    const url = document.getElementById("customBg").value;
+    socket.emit("set_custom_bg_url", {url});
 }
 
 function updateDmExclusiveUI() {
@@ -381,7 +408,9 @@ function calculateInitiatives() {
     const interval = parseInt(intervalStr) || 30;
     
     const ranks = {};
-    for (let i = 1; i <= numTimers; i++) {
+    const ids = Array.from(document.querySelectorAll("[id^='init-rank-']")).map(el => Number(el.id.replace("init-rank-", "")));
+    
+    for (let i of ids) {
         const val = document.getElementById(`init-rank-${i}`)?.value;
         if (val) {
             ranks[i] = parseInt(val);

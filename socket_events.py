@@ -5,19 +5,19 @@ def register_socket_events(socketio):
 
     @socketio.on("toggle_hand")
     def toggle_hand(data):
-        tm.toggle_hand(data["timer"])
+        tm.toggle_hand(int(data["timer"]))
 
     @socketio.on("set_condition")
     def set_condition(data):
-        tm.set_condition(data["timer"], data["condition"])
+        tm.set_condition(int(data["timer"]), data["condition"])
 
     @socketio.on("toggle")
     def toggle(data):
-        tm.toggle_timer(data["timer"])
+        tm.toggle_timer(int(data["timer"]))
 
     @socketio.on("reset")
     def reset(data):
-        tm.reset_timer(data["timer"])
+        tm.reset_timer(int(data["timer"]))
 
     @socketio.on("toggle_all")
     def toggle_all():
@@ -34,7 +34,7 @@ def register_socket_events(socketio):
 
     @socketio.on("set_timer")
     def set_timer(data):
-        tm.set_timer(data["timer"], data["seconds"])
+        tm.set_timer(int(data["timer"]), data["seconds"])
 
     @socketio.on("lock_controls")
     def lock_controls(data):
@@ -52,16 +52,19 @@ def register_socket_events(socketio):
 
     @socketio.on("adjust_timer")
     def adjust_timer(data):
-        tm.adjust_timer(data["timer"], data["delta"])
+        tm.adjust_timer(int(data["timer"]), data["delta"])
 
     @socketio.on("set_name")
     def set_name(data):
-        tm.set_timer_name(data["timer"], data["name"])
+        tm.set_timer_name(int(data["timer"]), data["name"])
 
-    @socketio.on("set_num_timers")
-    def set_num_timers(data):
-        new_state = tm.update_control_state("num_timers", data["num"])
-        socketio.emit("control_update", new_state)
+    @socketio.on("add_timer")
+    def add_timer():
+        tm.add_timer()
+
+    @socketio.on("delete_timer")
+    def delete_timer(data):
+        tm.delete_timer(int(data["timer"]))
 
     @socketio.on("set_dm_exclusive")
     def set_dm_exclusive(data):
@@ -72,6 +75,11 @@ def register_socket_events(socketio):
     def set_theme(data):
         new_state = tm.update_control_state("theme", data["theme"])
         socketio.emit("control_update", new_state)
+        
+    @socketio.on("set_custom_bg_url")
+    def set_custom_bg_url(data):
+        new_state = tm.update_control_state("custom_bg_url", data["url"])
+        socketio.emit("control_update", new_state)
 
     @socketio.on("calculate_initiatives")
     def calculate_initiatives(data):
@@ -79,9 +87,6 @@ def register_socket_events(socketio):
         interval = data.get("interval", 30)
         ranks = data.get("ranks", {})
         
-        # calculate_initiatives handles all internal logic, math, and state persisting
         updated_state = gl.calculate_initiatives(mode, interval, ranks)
-        
-        # Only emit a control update if the duration changed via mode='interval'
         if updated_state:
             socketio.emit("control_update", updated_state)

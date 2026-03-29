@@ -1,5 +1,13 @@
 {
-    "num_timers": 5,
+    "max_timer_id": 8,
+    "active_timer_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+    ],
     "dm_exclusive": true,
     "locked": false,
     "adjust_locked": true,
@@ -9,7 +17,9 @@
         "2": "Hailey",
         "3": "Alastor",
         "4": "Big bad",
-        "5": "Konner!"
+        "5": "Konner!",
+        "6": "Timer 6"
     },
-    "theme": "tavern"
+    "theme": "tavern",
+    "custom_bg_url": ""
 }

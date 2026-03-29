@@ -16,27 +16,42 @@ socket.on("control_update", (data) => {
     if (data.theme) {
         document.body.className = `theme-${data.theme} page-display`;
     }
+    
+    if (data.custom_bg_url !== undefined) {
+        applyCustomBg(data.custom_bg_url);
+    }
+});
 
+function applyCustomBg(url) {
+    if (url && url.trim() !== "") {
+        document.body.style.backgroundImage = `url('${url}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.backgroundAttachment = "fixed";
+    } else {
+        document.body.style.backgroundImage = "";
+    }
+}
+
+socket.on("update", (data) => {
     const container = document.getElementById("timers");
-    if (numTimers <= 4) {
+    const currentIds = Object.keys(data).map(Number).sort((a,b) => a - b);
+    
+    if (currentIds.length <= 4) {
         container.style.gridTemplateColumns = "repeat(2, 1fr)";
     } else {
         container.style.gridTemplateColumns = "repeat(3, 1fr)";
     }
-});
 
-socket.on("update", (data) => {
-    const container = document.getElementById("timers");
+    Array.from(container.children).forEach(child => {
+        const idNum = Number(child.id.replace("display-timer-", ""));
+        if (!currentIds.includes(idNum)) {
+            child.remove();
+        }
+    });
 
-    // Remove any extra timers if numTimers was lowered
-    for (let i = numTimers + 1; i <= 12; i++) {
-        const div = document.getElementById(`display-timer-${i}`);
-        if (div) div.remove();
-    }
-
-    for (let i = 1; i <= numTimers; i++) {
+    for (let i of currentIds) {
         const t = data[i];
-        if (!t) continue; // Skip if timer doesn't exist
 
         let div = document.getElementById(`display-timer-${i}`);
 

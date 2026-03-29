@@ -31,7 +31,22 @@ socket.on("control_update", (data) => {
     if (data.theme) {
         document.body.className = `theme-${data.theme} page-dm`;
     }
+
+    if (data.custom_bg_url !== undefined) {
+        applyCustomBg(data.custom_bg_url);
+    }
 });
+
+function applyCustomBg(url) {
+    if (url && url.trim() !== "") {
+        document.body.style.backgroundImage = `url('${url}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.backgroundAttachment = "fixed";
+    } else {
+        document.body.style.backgroundImage = "";
+    }
+}
 
 function render() {
     if (!TIMER_ID || !timers[TIMER_ID]) return;

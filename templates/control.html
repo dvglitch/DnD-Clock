@@ -25,11 +25,14 @@
                             <option value="dungeon">Dungeon Wall</option>
                             <option value="parchment">Ancient Parchment</option>
                         </select>
+                        <div style="margin-top:10px;">
+                            <input id="customBg" type="text" placeholder="Or Image URL..." style="background:#333; color:white; border:1px solid #555; border-radius:5px; padding:8px 10px; width:130px; margin:0;" onchange="setCustomBg()">
+                        </div>
                     </div>
                     <div>
-                        <h3 style="margin:0 0 10px 0;">Number of Timers</h3>
-                        <input id="numTimers" type="number" value="6" min="1" max="12" style="width:70px; margin:5px;">
-                        <button onclick="setNumTimers()">Apply</button>
+                        <h3 style="margin:0 0 10px 0;">Combatants</h3>
+                        <button onclick="addTimer()" style="padding:10px 20px; font-weight:bold; background:#1e7f3f; color:white; border:none; border-radius:5px; cursor:pointer;">+ Add Timer</button>
+                        <div style="margin-top:10px; font-size:12px; opacity:0.8;">Remove them from the combat tab</div>
                     </div>
                     <div>
                         <h3 style="margin:0 0 10px 0;">Set Default Time (s)</h3>
