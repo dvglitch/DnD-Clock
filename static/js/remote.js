@@ -106,7 +106,7 @@ function renderTimers() {
                         <div style="display:flex; width:100%; margin-bottom:10px;">
                             <button class="hand-btn" onclick="toggleHand(${i})" style="flex:1; margin:0; border:1px solid rgba(255,215,0,0.5); background:rgba(218,165,32,0.2); color:gold; box-sizing:border-box;"></button>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <div class="adj-container" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                             <button class="adj-btn" onclick="adjust(${i}, 30)" style="margin:0; width:100%; background:#444; box-sizing:border-box;">+30s</button>
                             <button class="adj-btn" onclick="adjust(${i}, -30)" style="margin:0; width:100%; background:#444; box-sizing:border-box;">-30s</button>
                         </div>
@@ -130,12 +130,16 @@ function renderTimers() {
             const pos = t.position ? `Order: ${t.position}` : "";
             const toggleTxt = t.running ? "Pause" : "Start";
             const handTxt = t.raised_hand ? "Lower Hand" : "Raise Hand";
-            const adOpc = (locked || adjustLocked) ? "0.5" : "1";
+            const adOpc = locked ? "0.5" : "1";
+            const adjDisplay = adjustLocked ? "none" : "grid";
 
             card.querySelector('.status-disp').textContent = status;
             card.querySelector('.pos-disp').textContent = pos;
             card.querySelector('.toggle-btn').textContent = toggleTxt;
             card.querySelector('.hand-btn').textContent = handTxt;
+            
+            let adjContainer = card.querySelector('.adj-container');
+            if (adjContainer) adjContainer.style.display = adjDisplay;
             
             card.querySelectorAll('.adj-btn').forEach(btn => {
                 btn.style.opacity = adOpc;
