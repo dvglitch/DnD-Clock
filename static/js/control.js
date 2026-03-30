@@ -9,13 +9,19 @@ function formatTime(s) {
 let dmExclusive = false;
 let locked = false;
 let adjustLocked = false;
+let adjustInterval = 30;
                   
 socket.on("control_update", (data) => {
     locked = data.locked || false;
     adjustLocked = data.adjust_locked || false;
+    adjustInterval = data.adjust_interval || 30;
     dmExclusive = data.dm_exclusive || false;
     
     document.getElementById("dmExclusiveToggle").checked = dmExclusive;
+    const adjustInput = document.getElementById("adjustIntervalInput");
+    if (adjustInput && document.activeElement !== adjustInput) {
+        adjustInput.value = adjustInterval;
+    }
     
     if (data.DEFAULT_DURATION !== undefined) {
         document.getElementById("allTime").value = data.DEFAULT_DURATION;
@@ -127,8 +133,8 @@ socket.on("update", (data) => {
 
                     <!-- Adjustments -->
                     <div class="hide-on-compact" style="display:flex; gap:10px;">
-                        <button onclick="adjust(${i}, 30)" style="flex:1; margin:0;">+30s</button>
-                        <button onclick="adjust(${i}, -30)" style="flex:1; margin:0;">-30s</button>
+                        <button id="adj-up-${i}" style="flex:1; margin:0;"></button>
+                        <button id="adj-down-${i}" style="flex:1; margin:0;"></button>
                     </div>
 
                     <!-- Set custom time -->
@@ -160,10 +166,21 @@ socket.on("update", (data) => {
             };
         }
 
-        // ✅ Update name (only if not actively editing)
         const nameInput = document.getElementById(`name-${i}`);
         if (document.activeElement !== nameInput) {
             nameInput.value = t.name;
+        }
+
+        // ✅ Update buttons
+        const adjUp = document.getElementById(`adj-up-${i}`);
+        if (adjUp) {
+            adjUp.onclick = () => adjust(i, adjustInterval);
+            adjUp.innerText = `+${adjustInterval}s`;
+        }
+        const adjDown = document.getElementById(`adj-down-${i}`);
+        if (adjDown) {
+            adjDown.onclick = () => adjust(i, -adjustInterval);
+            adjDown.innerText = `-${adjustInterval}s`;
         }
 
         // ✅ Update condition (only if not actively editing)
@@ -225,6 +242,7 @@ socket.on("update", (data) => {
             initDiv.innerHTML = `
                 <input type="text" id="init-name-${i}" placeholder="Timer ${i} Name" style="flex:1; min-width:0; background:#222; color:white; border:1px solid #555; border-radius:5px; padding:8px; font-size:18px; font-weight:bold; font-family:'Inter', sans-serif;">
                 <input type="number" id="init-rank-${i}" placeholder="Initiative" style="width:100px; box-sizing:border-box; font-size:1.2em; padding:8px; text-align:center; background:#222; color:white; border:1px solid #555; border-radius:5px;">
+                <button onclick="deleteTimer(${i})" style="background:#a83232; color:white; border:none; border-radius:5px; padding:0 15px; font-weight:bold; cursor:pointer;" title="Delete Timer">X</button>
             `;
             initListContainer.appendChild(initDiv);
 
@@ -327,6 +345,13 @@ function setCustomBg() {
     socket.emit("set_custom_bg_url", {url});
 }
 
+function setAdjustInterval() {
+    const val = parseInt(document.getElementById("adjustIntervalInput").value, 10);
+    if (!isNaN(val) && val > 0) {
+        socket.emit("set_adjust_interval", {interval: val});
+    }
+}
+
 function updateDmExclusiveUI() {
     const toggle = document.getElementById("dmExclusiveToggle");
     const label = document.getElementById("dmExclusiveLabel");
@@ -373,7 +398,7 @@ function updateLockUI() {
     }
 
     if (adjustLabel) {
-        adjustLabel.innerText = adjustLocked ? "+-30s Controls: 🔒 Locked" : "+-30s Controls: 🔓 Unlocked";
+        adjustLabel.innerText = adjustLocked ? `+-${adjustInterval}s: 🔒 Locked` : `+-${adjustInterval}s: 🔓 Unlocked`;
     }
 }
 

@@ -48,12 +48,18 @@
                         <div id="lockLabel1" style="margin-top:10px; font-weight:bold;">Master Controls: 🔓 Unlocked</div>
                     </div>
                     <div>
-                        <h3 style="margin:0 0 15px 0;">Disable +-30s Buttons</h3>
-                        <label class="switch">
-                            <input type="checkbox" id="adjustLockToggle" onchange="toggleAdjustLock()">
-                            <span class="slider"></span>
-                        </label>
-                        <div id="adjustLockLabel" style="margin-top:10px; font-weight:bold;">+-30s Controls: 🔓 Unlocked</div>
+                        <h3 style="margin:0 0 15px 0;">Quick Adjust</h3>
+                        <div style="display:flex; align-items:center; gap:20px; justify-content:center; margin-bottom:10px;">
+                            <div style="display:flex; align-items:center; gap:5px;">
+                                <input id="adjustIntervalInput" type="number" min="1" style="width:60px; padding:5px; background:#333; color:white; border:1px solid #555; border-radius:5px;" onchange="setAdjustInterval()">
+                                <span style="font-size:14px; opacity:0.8;">sec</span>
+                            </div>
+                            <label class="switch" style="margin:0;">
+                                <input type="checkbox" id="adjustLockToggle" onchange="toggleAdjustLock()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div id="adjustLockLabel" style="font-weight:bold; font-size:14px;">+- Controls: 🔓 Unlocked</div>
                     </div>
                     <div>
                         <h3 style="margin:0 0 15px 0;">DM Exclusive Timer</h3>

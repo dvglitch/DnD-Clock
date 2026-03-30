@@ -6,6 +6,7 @@ let locked = false;
 let adjustLocked = false;
 let numTimers = 6;
 let dmExclusive = false;
+let adjustInterval = 30;
 
 function formatTime(s) {
     let m = Math.floor(s / 60);
@@ -21,6 +22,7 @@ socket.on("update", (data) => {
 socket.on("control_update", (data) => {
     locked = data.locked;
     adjustLocked = data.adjust_locked || false;
+    adjustInterval = data.adjust_interval || 30;
     numTimers = data.num_timers || 6;
     dmExclusive = data.dm_exclusive || false;
     
@@ -122,8 +124,8 @@ function renderTimers() {
                             <button class="hand-btn" onclick="toggleHand(${i})" style="flex:1; margin:0; border:1px solid rgba(255,215,0,0.5); background:rgba(218,165,32,0.2); color:gold; box-sizing:border-box;"></button>
                         </div>
                         <div class="adj-container" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                            <button class="adj-btn" onclick="adjust(${i}, 30)" style="margin:0; width:100%; background:#444; box-sizing:border-box;">+30s</button>
-                            <button class="adj-btn" onclick="adjust(${i}, -30)" style="margin:0; width:100%; background:#444; box-sizing:border-box;">-30s</button>
+                            <button id="adj-up-btn-${i}" class="adj-btn" style="margin:0; width:100%; background:#444; box-sizing:border-box;">+30s</button>
+                            <button id="adj-down-btn-${i}" class="adj-btn" style="margin:0; width:100%; background:#444; box-sizing:border-box;">-30s</button>
                         </div>
                         <div style="display:flex; width:100%;">
                             <button onclick="toggleExpand(${i})" style="flex:1; margin:0; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.4); box-sizing:border-box;">⬇ Back to List</button>
@@ -159,6 +161,17 @@ function renderTimers() {
             card.querySelectorAll('.adj-btn').forEach(btn => {
                 btn.style.opacity = adOpc;
             });
+
+            const adjUp = document.getElementById(`adj-up-btn-${i}`);
+            if (adjUp) {
+                adjUp.onclick = () => adjust(i, adjustInterval);
+                adjUp.textContent = `+${adjustInterval}s`;
+            }
+            const adjDown = document.getElementById(`adj-down-btn-${i}`);
+            if (adjDown) {
+                adjDown.onclick = () => adjust(i, -adjustInterval);
+                adjDown.textContent = `-${adjustInterval}s`;
+            }
         }
     }
     

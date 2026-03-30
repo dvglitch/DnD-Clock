@@ -8,6 +8,7 @@ settings = load_settings()
 dm_exclusive = settings.get("dm_exclusive", False)
 locked = settings.get("locked", False)
 adjust_locked = settings.get("adjust_locked", False)
+adjust_interval = settings.get("adjust_interval", 30)
 DEFAULT_DURATION = settings.get("DEFAULT_DURATION", 180)
 theme = settings.get("theme", "tavern")
 custom_bg_url = settings.get("custom_bg_url", "")
@@ -22,6 +23,7 @@ finish_order = []
 control_state = {
     "locked": locked,
     "adjust_locked": adjust_locked,
+    "adjust_interval": adjust_interval,
     "dm_exclusive": dm_exclusive,
     "DEFAULT_DURATION": DEFAULT_DURATION,
     "theme": theme,
@@ -58,6 +60,7 @@ def save_current_state():
         "dm_exclusive": dm_exclusive,
         "locked": control_state["locked"],
         "adjust_locked": control_state.get("adjust_locked", False),
+        "adjust_interval": control_state.get("adjust_interval", 30),
         "DEFAULT_DURATION": DEFAULT_DURATION,
         "timer_names": {str(k): v["name"] for k, v in timers.items()},
         "theme": theme,
@@ -71,12 +74,15 @@ def save_current_state():
 
 def update_control_state(key, value):
     """Updates a global control variable, syncs state, and persists."""
-    global dm_exclusive, DEFAULT_DURATION, theme, custom_bg_url
+    global dm_exclusive, DEFAULT_DURATION, theme, custom_bg_url, adjust_interval
     
     if key == "locked":
         control_state["locked"] = value
     elif key == "adjust_locked":
         control_state["adjust_locked"] = value
+    elif key == "adjust_interval":
+        adjust_interval = int(value)
+        control_state["adjust_interval"] = adjust_interval
     elif key == "DEFAULT_DURATION":
         DEFAULT_DURATION = int(value)
         control_state["DEFAULT_DURATION"] = DEFAULT_DURATION

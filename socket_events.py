@@ -46,6 +46,11 @@ def register_socket_events(socketio):
         new_state = tm.update_control_state("adjust_locked", data["locked"])
         socketio.emit("control_update", new_state)
 
+    @socketio.on("set_adjust_interval")
+    def set_adjust_interval(data):
+        new_state = tm.update_control_state("adjust_interval", data["interval"])
+        socketio.emit("control_update", new_state)
+
     @socketio.on("connect")
     def send_control_state():
         socketio.emit("control_update", tm.control_state)
