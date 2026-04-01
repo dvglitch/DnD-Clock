@@ -32,8 +32,9 @@ jobs:
     - name: Prepare Distribution
       shell: pwsh
       run: |
-        if (!(Test-Path "dist/sounds")) { New-Item -ItemType Directory -Path "dist/sounds" }
-        if (!(Test-Path "dist/images")) { New-Item -ItemType Directory -Path "dist/images" }
+        # Copy help scripts to dist
+        cp start-tunnel.bat dist/ || true
+        # Copy existing assets to dist (user facing)
         if (Test-Path "static/sounds/*") { Copy-Item -Path "static/sounds/*" -Destination "dist/sounds/" -Recurse -Force -ErrorAction SilentlyContinue }
         if (Test-Path "static/images/*") { Copy-Item -Path "static/images/*" -Destination "dist/images/" -Recurse -Force -ErrorAction SilentlyContinue }
 
