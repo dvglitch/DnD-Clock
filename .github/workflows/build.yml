@@ -1,0 +1,64 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --noconfirm DnD-Clock.spec
+
+    - name: Prepare Distribution
+      run: |
+        # Create external asset folders in dist if they don't exist
+        mkdir -p dist/sounds
+        mkdir -p dist/images
+        # Copy existing assets to dist (user facing)
+        cp -r static/sounds/* dist/sounds/ || true
+        cp -r static/images/* dist/images/ || true
+        # Remove any unnecessary build artifacts from dist
+        shell: bash
+
+    - name: Archive dist
+      uses: thepipeliner/composite-actions/zip@main
+      with:
+        source_dir: 'dist'
+        output_file: 'DnD-Clock-Windows.zip'
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: Latest Build
+        body: |
+          Automated build from the latest push to main.
+          
+          **How to use:**
+          1. Download `DnD-Clock-Windows.zip`
+          2. Extract the folder
+          3. Run `DnD-Clock.exe`
+        files: DnD-Clock-Windows.zip
+        prerelease: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

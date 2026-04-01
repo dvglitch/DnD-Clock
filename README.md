@@ -57,3 +57,21 @@ If you have players joining over Discord/Zoom, or if your local Wi-Fi router blo
 6. Send the URL to your online players so they can access the display or remote! 
 
 *(Note: The QR code inside the app will automatically update to point to this new Cloudflare link!)*
+
+
+example launch.json:
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "app.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}
