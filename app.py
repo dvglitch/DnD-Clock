@@ -11,6 +11,8 @@ from timers import timer_loop
 from utils import get_local_ip
 import webbrowser
 from threading import Timer
+import os
+from flask import jsonify
 
 
 app = Flask(__name__)
@@ -25,6 +27,14 @@ app.register_blueprint(remote_bp)
 register_socket_events(socketio)
 
 socketio.start_background_task(timer_loop, socketio)
+
+@app.route("/api/sounds")
+def list_sounds():
+    sounds_dir = os.path.join(app.root_path, "static", "sounds")
+    if not os.path.exists(sounds_dir):
+        return jsonify([])
+    files = [f for f in os.listdir(sounds_dir) if f.endswith(('.mp3', '.wav', '.ogg'))]
+    return jsonify(sorted(files))
 
 if __name__ == "__main__":
     ip = get_local_ip()

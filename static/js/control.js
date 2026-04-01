@@ -33,6 +33,14 @@ socket.on("control_update", (data) => {
         document.getElementById("customBg").value = data.custom_bg_url;
         applyCustomBg(data.custom_bg_url);
     }
+
+    if (data.timer_done_sound) {
+        document.getElementById("timerSoundSelect").value = data.timer_done_sound;
+    }
+
+    if (data.hand_raise_sound) {
+        document.getElementById("handSoundSelect").value = data.hand_raise_sound;
+    }
     
     updateLockUI();
 });
@@ -456,3 +464,38 @@ function calculateInitiatives() {
     
     socket.emit("calculate_initiatives", { mode, interval, ranks });
 }
+
+async function fetchSounds() {
+    try {
+        const resp = await fetch("/api/sounds");
+        const sounds = await resp.json();
+        const tSel = document.getElementById("timerSoundSelect");
+        const hSel = document.getElementById("handSoundSelect");
+
+        sounds.forEach(s => {
+            const opt1 = document.createElement("option");
+            opt1.value = s;
+            opt1.textContent = s;
+            tSel.appendChild(opt1);
+
+            const opt2 = document.createElement("option");
+            opt2.value = s;
+            opt2.textContent = s;
+            hSel.appendChild(opt2);
+        });
+    } catch (e) {
+        console.error("Failed to fetch sounds", e);
+    }
+}
+
+function changeTimerSound() {
+    const sound = document.getElementById("timerSoundSelect").value;
+    socket.emit("set_timer_done_sound", {sound});
+}
+
+function changeHandSound() {
+    const sound = document.getElementById("handSoundSelect").value;
+    socket.emit("set_hand_raise_sound", {sound});
+}
+
+fetchSounds();

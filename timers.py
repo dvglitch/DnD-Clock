@@ -11,6 +11,8 @@ adjust_interval = settings.get("adjust_interval", 30)
 DEFAULT_DURATION = settings.get("DEFAULT_DURATION", 180)
 theme = settings.get("theme", "tavern")
 custom_bg_url = settings.get("custom_bg_url", "")
+timer_done_sound = settings.get("timer_done_sound", "synthetic")
+hand_raise_sound = settings.get("hand_raise_sound", "synthetic")
 
 max_timer_id = settings.get("max_timer_id", 6)
 active_timer_ids = settings.get("active_timer_ids", list(range(1, max_timer_id + 1)))
@@ -25,7 +27,9 @@ control_state = {
     "adjust_interval": adjust_interval,
     "DEFAULT_DURATION": DEFAULT_DURATION,
     "theme": theme,
-    "custom_bg_url": custom_bg_url
+    "custom_bg_url": custom_bg_url,
+    "timer_done_sound": timer_done_sound,
+    "hand_raise_sound": hand_raise_sound
 }
 
 def init_timers():
@@ -64,7 +68,9 @@ def save_current_state():
         "timer_names": {str(k): v["name"] for k, v in timers.items()},
         "timer_show_on_remote": {str(k): v.get("show_on_remote", True) for k, v in timers.items()},
         "theme": theme,
-        "custom_bg_url": custom_bg_url
+        "custom_bg_url": custom_bg_url,
+        "timer_done_sound": control_state.get("timer_done_sound", "synthetic"),
+        "hand_raise_sound": control_state.get("hand_raise_sound", "synthetic")
     }
     save_settings(settings)
 
@@ -74,7 +80,7 @@ def save_current_state():
 
 def update_control_state(key, value):
     """Updates a global control variable, syncs state, and persists."""
-    global DEFAULT_DURATION, theme, custom_bg_url, adjust_interval
+    global DEFAULT_DURATION, theme, custom_bg_url, adjust_interval, timer_done_sound, hand_raise_sound
     
     if key == "locked":
         control_state["locked"] = value
@@ -92,6 +98,12 @@ def update_control_state(key, value):
     elif key == "custom_bg_url":
         custom_bg_url = value
         control_state["custom_bg_url"] = custom_bg_url
+    elif key == "timer_done_sound":
+        timer_done_sound = value
+        control_state["timer_done_sound"] = timer_done_sound
+    elif key == "hand_raise_sound":
+        hand_raise_sound = value
+        control_state["hand_raise_sound"] = hand_raise_sound
     
     save_current_state()
     return control_state

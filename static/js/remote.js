@@ -7,6 +7,94 @@ let adjustLocked = false;
 let numTimers = 6;
 let adjustInterval = 30;
 
+let prevTimers = {};
+let muteFeedback = localStorage.getItem("mute_remote_feedback") === "true";
+let selectedTimerSound = "synthetic";
+
+// Audio Controller for reliable playback
+const AudioController = {
+    timerAudio: null,
+    audioCtx: null,
+    unlocked: false,
+
+    init() {
+        if (this.unlocked) return;
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+        this.unlocked = true;
+        console.log("Audio system unlocked");
+        this.updateUnlockUI();
+    },
+
+    setTimerSound(sound) {
+        if (sound === "synthetic") {
+            this.timerAudio = null;
+        } else {
+            this.timerAudio = new Audio(`/static/sounds/${sound}`);
+            this.timerAudio.load(); // Pre-load
+        }
+    },
+
+    play(type) {
+        if (type === 'timer' && navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+
+        if (muteFeedback) return;
+        this.init(); // Ensure initialized on first play if not already
+
+        if (type === 'timer') {
+            if (this.timerAudio) {
+                this.timerAudio.currentTime = 0;
+                this.timerAudio.play().catch(e => console.warn("Audio play failed:", e));
+            } else {
+                this.playSyntheticTimer();
+            }
+        }
+    },
+
+    playSyntheticTimer() {
+        if (!this.audioCtx) return;
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.frequency.setValueAtTime(660, this.audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(523.25, this.audioCtx.currentTime + 0.1); 
+        gain.gain.setValueAtTime(0.3, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.8);
+        osc.start();
+        osc.stop(this.audioCtx.currentTime + 0.8);
+    },
+
+    updateUnlockUI() {
+        const indicator = document.getElementById("audio-status");
+        if (indicator) {
+            let statusText = this.unlocked ? "🟢 Audio Ready" : "🔴 Click to Sync Audio";
+            const hapticStatus = navigator.vibrate ? "📱 Haptics: ✅ Ready" : "📱 Haptics: ❌ Unsupported";
+            indicator.innerHTML = `${statusText}<br><span style="font-size:10px; opacity:0.7;">${hapticStatus}</span>`;
+            indicator.style.color = this.unlocked ? "#4CAF50" : "#ff4444";
+        }
+    }
+};
+
+// Global click to unlock audio
+window.addEventListener('click', () => AudioController.init(), { once: false });
+
+// Feedback sound and haptics (legacy wrapper)
+function playFeedback(type) {
+    AudioController.play(type);
+}
+
+function toggleMute() {
+    muteFeedback = !muteFeedback;
+    localStorage.setItem("mute_remote_feedback", muteFeedback);
+    const btn = document.getElementById("mute-btn");
+    if (btn) btn.innerText = muteFeedback ? "🔇 Muted" : "🔔 Alerts On";
+}
+
 function formatTime(s) {
     let m = Math.floor(s / 60);
     let sec = Math.floor(s % 60);
@@ -14,7 +102,16 @@ function formatTime(s) {
 }
 
 socket.on("update", (data) => {
+    // Check for expanded timer completion
+    if (expanded !== null && data[expanded] && prevTimers[expanded]) {
+        const t = data[expanded];
+        const pt = prevTimers[expanded];
+        if (t.remaining <= 0 && pt.remaining > 0) {
+            playFeedback('timer');
+        }
+    }
     timers = data;
+    prevTimers = JSON.parse(JSON.stringify(data));
     renderTimers();
 });
 
@@ -30,6 +127,11 @@ socket.on("control_update", (data) => {
     
     if (data.custom_bg_url !== undefined) {
         applyCustomBg(data.custom_bg_url);
+    }
+
+    if (data.timer_done_sound) {
+        selectedTimerSound = data.timer_done_sound;
+        AudioController.setTimerSound(data.timer_done_sound);
     }
 
     document.body.style.opacity = locked ? 0.5 : 1;
@@ -59,6 +161,23 @@ function toggleExpand(i) {
 
 function renderTimers() {
     const container = document.getElementById("timers");
+
+    // Feedback Toggle Header
+    let settingsBar = document.getElementById("feedback-settings");
+    if (!settingsBar) {
+        settingsBar = document.createElement("div");
+        settingsBar.id = "feedback-settings";
+        settingsBar.style = "display:flex; justify-content:space-between; align-items:center; padding:0 10px 10px 10px; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1);";
+        settingsBar.innerHTML = `
+            <div id="audio-status" style="font-size:11px; font-weight:bold; color:#ff4444; opacity:0.8;">🔴 Click to Sync Audio</div>
+            <button id="mute-btn" onclick="toggleMute()" style="font-size:12px; padding:5px 12px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.2); border-radius:15px; color:white; cursor:pointer; width:auto; margin:0;">
+                ${muteFeedback ? "🔇 Muted" : "🔔 Alerts On"}
+            </button>
+        `;
+        container.parentElement.insertBefore(settingsBar, container);
+        AudioController.updateUnlockUI();
+    }
+
     let ids = Object.keys(timers)
         .map(Number)
         .sort((a, b) => a - b)

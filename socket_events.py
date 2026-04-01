@@ -85,6 +85,16 @@ def register_socket_events(socketio):
         new_state = tm.update_control_state("custom_bg_url", data["url"])
         socketio.emit("control_update", new_state)
 
+    @socketio.on("set_timer_done_sound")
+    def set_timer_done_sound(data):
+        new_state = tm.update_control_state("timer_done_sound", data["sound"])
+        socketio.emit("control_update", new_state)
+
+    @socketio.on("set_hand_raise_sound")
+    def set_hand_raise_sound(data):
+        new_state = tm.update_control_state("hand_raise_sound", data["sound"])
+        socketio.emit("control_update", new_state)
+
     @socketio.on("calculate_initiatives")
     def calculate_initiatives(data):
         mode = data.get("mode", "proportional")

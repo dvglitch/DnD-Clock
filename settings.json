@@ -9,7 +9,7 @@
     "locked": false,
     "adjust_locked": false,
     "adjust_interval": 15,
-    "DEFAULT_DURATION": 90,
+    "DEFAULT_DURATION": 2,
     "timer_names": {
         "1": "Angel",
         "2": "Timer 2",
@@ -23,5 +23,7 @@
         "4": false
     },
     "theme": "tavern",
-    "custom_bg_url": ""
+    "custom_bg_url": "",
+    "timer_done_sound": "discord-notification.mp3",
+    "hand_raise_sound": "yippeeee.mp3"
 }

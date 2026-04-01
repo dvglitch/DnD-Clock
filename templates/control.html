@@ -14,10 +14,12 @@
             <!-- SLIDE 1: SETUP & INITIATIVE -->
             <div id="slide-1" class="slide" style="display:none; animation:fadeIn 0.3s; padding-bottom:40px;">
                 <h2 style="margin-bottom:30px;">Settings & Constraints</h2>
-                <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:40px; justify-items:center; align-items:flex-start; background:#222; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin:auto;">
-                    <div style="grid-column: span 2;">
+                <div style="display:grid; grid-template-columns:repeat(12, 1fr); gap:40px; justify-items:center; align-items:flex-start; background:#222; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:90%; margin:auto;">
+                    
+                    <!-- Row 1: Themes & Sounds (3 items, 4 cols each) -->
+                    <div style="grid-column: span 4; width:100%;">
                         <h3 style="margin:0 0 10px 0;">Background Theme</h3>
-                        <select id="themeSelect" onchange="changeTheme()" style="background:#333; color:white; border:1px solid #555; padding:8px 10px; border-radius:5px; font-size:16px; font-family:'Inter', sans-serif;">
+                        <select id="themeSelect" onchange="changeTheme()" style="background:#333; color:white; border:1px solid #555; padding:8px 10px; border-radius:5px; font-size:16px; font-family:'Inter', sans-serif; width:100%; box-sizing:border-box;">
                             <option value="tavern">Tavern Room</option>
                             <option value="table">Wooden Table</option>
                             <option value="stone">Stone Floor</option>
@@ -26,28 +28,49 @@
                             <option value="parchment">Ancient Parchment</option>
                         </select>
                         <div style="margin-top:10px;">
-                            <input id="customBg" type="text" placeholder="Or Image URL..." style="background:#333; color:white; border:1px solid #555; border-radius:5px; padding:8px 10px; width:130px; margin:0;" onchange="setCustomBg()">
+                            <input id="customBg" type="text" placeholder="Or Image URL..." style="background:#333; color:white; border:1px solid #555; border-radius:5px; padding:8px 10px; width:100%; box-sizing:border-box; margin:0;" onchange="setCustomBg()">
                         </div>
                     </div>
-                    <div style="grid-column: span 2;">
+
+                    <div style="grid-column: span 4; width:100%;">
+                        <h3 style="margin:0 0 10px 0;">Timer Done Sound</h3>
+                        <select id="timerSoundSelect" onchange="changeTimerSound()" style="background:#333; color:white; border:1px solid #555; padding:8px 10px; border-radius:5px; font-size:16px; font-family:'Inter', sans-serif; width:100%; box-sizing:border-box;">
+                            <option value="synthetic">Synthetic (Default)</option>
+                        </select>
+                    </div>
+
+                    <div style="grid-column: span 4; width:100%;">
+                        <h3 style="margin:0 0 10px 0;">Hand Raise Sound</h3>
+                        <select id="handSoundSelect" onchange="changeHandSound()" style="background:#333; color:white; border:1px solid #555; padding:8px 10px; border-radius:5px; font-size:16px; font-family:'Inter', sans-serif; width:100%; box-sizing:border-box;">
+                            <option value="synthetic">Synthetic (Default)</option>
+                        </select>
+                    </div>
+
+                    <!-- Row 2: Logic & Controls (4 items, 3 cols each) -->
+                    <div style="grid-column: span 3; width:100%;">
                         <h3 style="margin:0 0 10px 0;">Combatants</h3>
-                        <button onclick="addTimer()" style="padding:10px 20px; font-weight:bold; background:#1e7f3f; color:white; border:none; border-radius:5px; cursor:pointer;">+ Add Timer</button>
-                        <div style="margin-top:10px; font-size:12px; opacity:0.8;">Remove them from the combat tab</div>
+                        <button onclick="addTimer()" style="padding:10px 20px; font-weight:bold; background:#1e7f3f; color:white; border:none; border-radius:5px; cursor:pointer; width:100%;">+ Add Timer</button>
+                        <div style="margin-top:10px; font-size:12px; opacity:0.8;">Manage from combat tab</div>
                     </div>
-                    <div style="grid-column: span 2;">
-                        <h3 style="margin:0 0 10px 0;">Set Default Time (s)</h3>
-                        <input id="allTime" type="number" value="180" style="width:80px; margin:5px;">
-                        <button onclick="setAll()">Apply</button>
+
+                    <div style="grid-column: span 3; width:100%;">
+                        <h3 style="margin:0 0 10px 0;">Default Time (s)</h3>
+                        <div style="display:flex; gap:5px;">
+                            <input id="allTime" type="number" value="180" style="width:100%; box-sizing:border-box; background:#333; color:white; border:1px solid #555; border-radius:5px; padding:8px;">
+                            <button onclick="setAll()" style="padding:8px 15px; background:#444; border:1px solid #555; color:white; border-radius:5px;">Set</button>
+                        </div>
                     </div>
-                    <div style="grid-column: 2 / span 2;">
+
+                    <div style="grid-column: span 3; width:100%;">
                         <h3 style="margin:0 0 15px 0;">Master Controls</h3>
                         <label class="switch">
                             <input type="checkbox" id="lockToggle1" onchange="toggleLock('lockToggle1')">
                             <span class="slider"></span>
                         </label>
-                        <div id="lockLabel1" style="margin-top:10px; font-weight:bold;">Master Controls: 🔓 Unlocked</div>
+                        <div id="lockLabel1" style="margin-top:10px; font-weight:bold; font-size:14px;">🔓 Unlocked</div>
                     </div>
-                    <div style="grid-column: 4 / span 2;">
+
+                    <div style="grid-column: span 3; width:100%;">
                         <h3 style="margin:0 0 15px 0;">Quick Adjust</h3>
                         <div style="display:flex; align-items:center; gap:20px; justify-content:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:5px;">
@@ -59,7 +82,7 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div id="adjustLockLabel" style="font-weight:bold; font-size:14px;">+- Controls: 🔓 Unlocked</div>
+                        <div id="adjustLockLabel" style="font-weight:bold; font-size:14px;">🔓 Unlocked</div>
                     </div>
                 </div>
 

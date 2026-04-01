@@ -2,6 +2,101 @@ const socket = io();
 
 let numTimers = 6;
 let dmExclusive = false;
+let prevTimers = {};
+let selectedTimerSound = "synthetic";
+let selectedHandSound = "synthetic";
+
+// Audio Controller for reliable playback
+const AudioController = {
+    timerAudio: null,
+    handAudio: null,
+    audioCtx: null,
+    unlocked: false,
+
+    init() {
+        if (this.unlocked) return;
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+        this.unlocked = true;
+        console.log("Audio system unlocked");
+        const overlay = document.getElementById("audio-unlock-overlay");
+        if (overlay) overlay.style.display = "none";
+    },
+
+    setTimerSound(sound) {
+        if (sound === "synthetic") {
+            this.timerAudio = null;
+        } else {
+            this.timerAudio = new Audio(`/static/sounds/${sound}`);
+            this.timerAudio.load();
+        }
+    },
+
+    setHandSound(sound) {
+        if (sound === "synthetic") {
+            this.handAudio = null;
+        } else {
+            this.handAudio = new Audio(`/static/sounds/${sound}`);
+            this.handAudio.load();
+        }
+    },
+
+    play(type) {
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
+        if (type === 'timer') {
+            if (this.timerAudio) {
+                this.timerAudio.currentTime = 0;
+                this.timerAudio.play().catch(e => console.warn(e));
+            } else {
+                this.playSynthetic('timer');
+            }
+        } else if (type === 'hand') {
+            if (this.handAudio) {
+                this.handAudio.currentTime = 0;
+                this.handAudio.play().catch(e => console.warn(e));
+            } else {
+                this.playSynthetic('hand');
+            }
+        }
+    },
+
+    playSynthetic(type) {
+        if (!this.audioCtx) return;
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+
+        if (type === 'timer') {
+            osc.frequency.setValueAtTime(660, this.audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(523.25, this.audioCtx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.3, this.audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.8);
+            osc.start();
+            osc.stop(this.audioCtx.currentTime + 0.8);
+        } else if (type === 'hand') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, this.audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(1320, this.audioCtx.currentTime + 0.1); 
+            gain.gain.setValueAtTime(0.2, this.audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(this.audioCtx.currentTime + 0.3);
+        }
+    }
+};
+
+// Global click to unlock audio
+window.addEventListener('click', () => AudioController.init(), { once: false });
+
+function playSound(type) {
+    AudioController.play(type);
+}
 
 function formatTime(s) {
     let m = Math.floor(s / 60);
@@ -20,6 +115,16 @@ socket.on("control_update", (data) => {
     if (data.custom_bg_url !== undefined) {
         applyCustomBg(data.custom_bg_url);
     }
+
+    if (data.timer_done_sound) {
+        selectedTimerSound = data.timer_done_sound;
+        AudioController.setTimerSound(data.timer_done_sound);
+    }
+
+    if (data.hand_raise_sound) {
+        selectedHandSound = data.hand_raise_sound;
+        AudioController.setHandSound(data.hand_raise_sound);
+    }
 });
 
 function applyCustomBg(url) {
@@ -34,7 +139,45 @@ function applyCustomBg(url) {
 }
 
 socket.on("update", (data) => {
+    // Detect transitions
+    Object.keys(data).forEach(id => {
+        const t = data[id];
+        const pt = prevTimers[id];
+        if (pt) {
+            // Timer completion check
+            if (t.remaining <= 0 && pt.remaining > 0) {
+                playSound('timer');
+            }
+            // Hand raise check
+            if (t.raised_hand && !pt.raised_hand) {
+                playSound('hand');
+            }
+        }
+    });
+
+    prevTimers = JSON.parse(JSON.stringify(data));
     const container = document.getElementById("timers");
+
+    // Click-to-unlock overlay for Display page
+    if (!document.getElementById("audio-unlock-overlay")) {
+        const overlay = document.createElement("div");
+        overlay.id = "audio-unlock-overlay";
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; cursor: pointer; backdrop-filter: blur(10px);
+            color: white; font-family: 'Cinzel', serif;
+        `;
+        overlay.innerHTML = `
+            <div style="font-size: 40px; margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,255,255,0.5);">🔊 Audio Sync Required</div>
+            <div style="font-size: 20px; opacity: 0.8;">Click anywhere to enable combat alerts</div>
+            <div style="margin-top: 40px; font-size: 14px; opacity: 0.5;">(Satisfies browser security policies)</div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
     const currentIds = Object.keys(data).map(Number).sort((a,b) => a - b);
     
     if (currentIds.length <= 4) {
