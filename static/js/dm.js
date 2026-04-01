@@ -112,11 +112,11 @@ function renderTimers() {
                             <div class="pos-disp" style="font-weight:bold;"></div>
                         </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                            <button class="toggle-btn" onclick="toggle(${i})" style="margin:0; width:100%; border:1px solid rgba(255,255,255,0.2); box-sizing:border-box;"></button>
-                            <button onclick="reset(${i})" style="margin:0; width:100%; border:1px solid rgba(255,255,255,0.2); box-sizing:border-box;">Reset</button>
+                            <button class="toggle-btn" onclick="toggle(event, ${i})" style="margin:0; width:100%; border:1px solid rgba(255,255,255,0.2); box-sizing:border-box;"></button>
+                            <button onclick="reset(event, ${i})" style="margin:0; width:100%; border:1px solid rgba(255,255,255,0.2); box-sizing:border-box;">Reset</button>
                         </div>
                         <div style="display:flex; width:100%; margin-bottom:10px;">
-                            <button class="hand-btn" onclick="toggleHand(${i})" style="flex:1; margin:0; border:1px solid rgba(255,215,0,0.5); background:rgba(218,165,32,0.2); color:gold; box-sizing:border-box;"></button>
+                            <button class="hand-btn" onclick="toggleHand(event, ${i})" style="flex:1; margin:0; border:1px solid rgba(255,215,0,0.5); background:rgba(218,165,32,0.2); color:gold; box-sizing:border-box;"></button>
                         </div>
                         <div class="adj-container" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                             <button id="adj-up-btn-${i}" class="adj-btn" style="margin:0; width:100%; background:#444; box-sizing:border-box;">+30s</button>
@@ -159,12 +159,12 @@ function renderTimers() {
 
             const adjUp = document.getElementById(`adj-up-btn-${i}`);
             if (adjUp) {
-                adjUp.onclick = () => adjust(i, adjustInterval);
+                adjUp.onclick = (e) => adjust(e, i, adjustInterval);
                 adjUp.textContent = `+${adjustInterval}s`;
             }
             const adjDown = document.getElementById(`adj-down-btn-${i}`);
             if (adjDown) {
-                adjDown.onclick = () => adjust(i, -adjustInterval);
+                adjDown.onclick = (e) => adjust(e, i, -adjustInterval);
                 adjDown.textContent = `-${adjustInterval}s`;
             }
         }
@@ -193,27 +193,27 @@ function renderTimers() {
     }
 }
 
-function toggle(i) {
+function toggle(e, i) {
     // Prevent bubbling of click event resolving multiple tabs breaking
-    event.stopPropagation();
+    e.stopPropagation();
     if (locked) return;
     socket.emit("toggle", {timer: i});
 }
 
-function reset(i) {
-    event.stopPropagation();
+function reset(e, i) {
+    e.stopPropagation();
     if (locked) return;
     socket.emit("reset", {timer: i});
 }
 
-function toggleHand(i) {
-    event.stopPropagation();
+function toggleHand(e, i) {
+    e.stopPropagation();
     if (locked) return;
     socket.emit("toggle_hand", {timer: i});
 }
 
-function adjust(i, delta) {
-    event.stopPropagation();
+function adjust(e, i, delta) {
+    e.stopPropagation();
     if (locked || adjustLocked) return;
     socket.emit("adjust_timer", {timer: i, delta});
 }

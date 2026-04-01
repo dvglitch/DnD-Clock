@@ -4,29 +4,23 @@
         1,
         2,
         3,
-        4,
-        5,
-        6
+        4
     ],
     "locked": false,
-    "adjust_locked": true,
+    "adjust_locked": false,
     "adjust_interval": 15,
-    "DEFAULT_DURATION": 180,
+    "DEFAULT_DURATION": 90,
     "timer_names": {
-        "1": "Angel :)",
-        "2": "Hailey",
-        "3": "Alastor",
-        "4": "Big bad",
-        "5": "Timer 5",
-        "6": "Timer 6"
+        "1": "Angel",
+        "2": "Timer 2",
+        "3": "Timer 3",
+        "4": "Timer 4"
     },
     "timer_show_on_remote": {
-        "1": false,
+        "1": true,
         "2": true,
         "3": true,
-        "4": true,
-        "5": true,
-        "6": true
+        "4": false
     },
     "theme": "tavern",
     "custom_bg_url": ""

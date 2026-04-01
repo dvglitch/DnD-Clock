@@ -49,8 +49,9 @@ function applyCustomBg(url) {
 }
 
 function updateThemeClass(themeName) {
+    const isCompact = document.body.classList.contains("compact-mode");
     document.body.className = `theme-${themeName} page-control`;
-    if (document.body.classList.contains("compact-mode")) {
+    if (isCompact) {
         document.body.classList.add("compact-mode");
     }
 }
