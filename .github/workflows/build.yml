@@ -30,15 +30,12 @@ jobs:
         pyinstaller --noconfirm DnD-Clock.spec
 
     - name: Prepare Distribution
+      shell: pwsh
       run: |
-        # Create external asset folders in dist if they don't exist
-        mkdir -p dist/sounds
-        mkdir -p dist/images
-        # Copy existing assets to dist (user facing)
-        cp -r static/sounds/* dist/sounds/ || true
-        cp -r static/images/* dist/images/ || true
-        # Remove any unnecessary build artifacts from dist
-        shell: bash
+        if (!(Test-Path "dist/sounds")) { New-Item -ItemType Directory -Path "dist/sounds" }
+        if (!(Test-Path "dist/images")) { New-Item -ItemType Directory -Path "dist/images" }
+        if (Test-Path "static/sounds/*") { Copy-Item -Path "static/sounds/*" -Destination "dist/sounds/" -Recurse -Force -ErrorAction SilentlyContinue }
+        if (Test-Path "static/images/*") { Copy-Item -Path "static/images/*" -Destination "dist/images/" -Recurse -Force -ErrorAction SilentlyContinue }
 
     - name: Archive dist
       run: |
