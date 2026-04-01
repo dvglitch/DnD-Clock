@@ -6,7 +6,6 @@ function formatTime(s) {
     return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
-let dmExclusive = false;
 let locked = false;
 let adjustLocked = false;
 let adjustInterval = 30;
@@ -15,9 +14,7 @@ socket.on("control_update", (data) => {
     locked = data.locked || false;
     adjustLocked = data.adjust_locked || false;
     adjustInterval = data.adjust_interval || 30;
-    dmExclusive = data.dm_exclusive || false;
     
-    document.getElementById("dmExclusiveToggle").checked = dmExclusive;
     const adjustInput = document.getElementById("adjustIntervalInput");
     if (adjustInput && document.activeElement !== adjustInput) {
         adjustInput.value = adjustInterval;
@@ -38,7 +35,6 @@ socket.on("control_update", (data) => {
     }
     
     updateLockUI();
-    updateDmExclusiveUI();
 });
 
 function applyCustomBg(url) {
@@ -241,6 +237,13 @@ socket.on("update", (data) => {
             initDiv.style = "display:flex; justify-content:space-between; align-items:stretch; background:#333; padding:15px; border-radius:8px; border:1px solid #444; gap:10px;";
             initDiv.innerHTML = `
                 <input type="text" id="init-name-${i}" placeholder="Timer ${i} Name" style="flex:1; min-width:0; background:#222; color:white; border:1px solid #555; border-radius:5px; padding:8px; font-size:18px; font-weight:bold; font-family:'Inter', sans-serif;">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:2px; min-width:50px;">
+                    <label id="remote-label-${i}" style="color:#4CAF50; font-size:11px; font-weight:bold; margin-bottom: 2px; text-transform:uppercase;">PLAYER</label>
+                    <label class="switch" style="margin:0; transform:scale(0.8);">
+                        <input type="checkbox" id="init-remote-${i}" onchange="toggleTimerRemote(${i})">
+                        <span class="slider"></span>
+                    </label>
+                </div>
                 <input type="number" id="init-rank-${i}" placeholder="Initiative" style="width:100px; box-sizing:border-box; font-size:1.2em; padding:8px; text-align:center; background:#222; color:white; border:1px solid #555; border-radius:5px;">
                 <button onclick="deleteTimer(${i})" style="background:#a83232; color:white; border:none; border-radius:5px; padding:0 15px; font-weight:bold; cursor:pointer;" title="Delete Timer">X</button>
             `;
@@ -255,6 +258,17 @@ socket.on("update", (data) => {
         const initNameInput = document.getElementById(`init-name-${i}`);
         if (initNameInput && document.activeElement !== initNameInput) {
             initNameInput.value = t.name || `Timer ${i}`;
+        }
+        
+        const initRemoteInput = document.getElementById(`init-remote-${i}`);
+        const remoteLabel = document.getElementById(`remote-label-${i}`);
+        if (initRemoteInput) {
+            const isRemote = (t.show_on_remote !== false);
+            initRemoteInput.checked = !isRemote;
+            if (remoteLabel) {
+                remoteLabel.innerText = isRemote ? "PLAYER" : "ENEMY";
+                remoteLabel.style.color = isRemote ? "#4CAF50" : "#f44336";
+            }
         }
     }
 
@@ -298,10 +312,15 @@ function setAll() {
     socket.emit("set_all_time", {seconds});
 }
 
-function toggleDmExclusive() {
-    const toggle = document.getElementById("dmExclusiveToggle");
-    const exclusive = toggle.checked;
-    socket.emit("set_dm_exclusive", {exclusive});
+function toggleTimerRemote(i) {
+    const isEnemy = document.getElementById(`init-remote-${i}`).checked;
+    const isRemote = !isEnemy;
+    const remoteLabel = document.getElementById(`remote-label-${i}`);
+    if (remoteLabel) {
+        remoteLabel.innerText = isRemote ? "PLAYER" : "ENEMY";
+        remoteLabel.style.color = isRemote ? "#4CAF50" : "#f44336";
+    }
+    socket.emit("set_timer_visibility", {timer: i, show_on_remote: isRemote});
 }
 
 function changeTheme() {
@@ -349,19 +368,6 @@ function setAdjustInterval() {
     const val = parseInt(document.getElementById("adjustIntervalInput").value, 10);
     if (!isNaN(val) && val > 0) {
         socket.emit("set_adjust_interval", {interval: val});
-    }
-}
-
-function updateDmExclusiveUI() {
-    const toggle = document.getElementById("dmExclusiveToggle");
-    const label = document.getElementById("dmExclusiveLabel");
-    
-    toggle.checked = dmExclusive;
-    
-    if (dmExclusive) {
-        label.innerText = "On (DM only for last timer)";
-    } else {
-        label.innerText = "Off (show all timers everywhere)";
     }
 }
                   

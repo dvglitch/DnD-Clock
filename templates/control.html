@@ -14,8 +14,8 @@
             <!-- SLIDE 1: SETUP & INITIATIVE -->
             <div id="slide-1" class="slide" style="display:none; animation:fadeIn 0.3s; padding-bottom:40px;">
                 <h2 style="margin-bottom:30px;">Settings & Constraints</h2>
-                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; justify-items:center; align-items:flex-start; background:#222; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin:auto;">
-                    <div>
+                <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:40px; justify-items:center; align-items:flex-start; background:#222; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin:auto;">
+                    <div style="grid-column: span 2;">
                         <h3 style="margin:0 0 10px 0;">Background Theme</h3>
                         <select id="themeSelect" onchange="changeTheme()" style="background:#333; color:white; border:1px solid #555; padding:8px 10px; border-radius:5px; font-size:16px; font-family:'Inter', sans-serif;">
                             <option value="tavern">Tavern Room</option>
@@ -29,17 +29,17 @@
                             <input id="customBg" type="text" placeholder="Or Image URL..." style="background:#333; color:white; border:1px solid #555; border-radius:5px; padding:8px 10px; width:130px; margin:0;" onchange="setCustomBg()">
                         </div>
                     </div>
-                    <div>
+                    <div style="grid-column: span 2;">
                         <h3 style="margin:0 0 10px 0;">Combatants</h3>
                         <button onclick="addTimer()" style="padding:10px 20px; font-weight:bold; background:#1e7f3f; color:white; border:none; border-radius:5px; cursor:pointer;">+ Add Timer</button>
                         <div style="margin-top:10px; font-size:12px; opacity:0.8;">Remove them from the combat tab</div>
                     </div>
-                    <div>
+                    <div style="grid-column: span 2;">
                         <h3 style="margin:0 0 10px 0;">Set Default Time (s)</h3>
                         <input id="allTime" type="number" value="180" style="width:80px; margin:5px;">
                         <button onclick="setAll()">Apply</button>
                     </div>
-                    <div>
+                    <div style="grid-column: 2 / span 2;">
                         <h3 style="margin:0 0 15px 0;">Master Controls</h3>
                         <label class="switch">
                             <input type="checkbox" id="lockToggle1" onchange="toggleLock('lockToggle1')">
@@ -47,7 +47,7 @@
                         </label>
                         <div id="lockLabel1" style="margin-top:10px; font-weight:bold;">Master Controls: 🔓 Unlocked</div>
                     </div>
-                    <div>
+                    <div style="grid-column: 4 / span 2;">
                         <h3 style="margin:0 0 15px 0;">Quick Adjust</h3>
                         <div style="display:flex; align-items:center; gap:20px; justify-content:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:5px;">
@@ -60,14 +60,6 @@
                             </label>
                         </div>
                         <div id="adjustLockLabel" style="font-weight:bold; font-size:14px;">+- Controls: 🔓 Unlocked</div>
-                    </div>
-                    <div>
-                        <h3 style="margin:0 0 15px 0;">DM Exclusive Timer</h3>
-                        <label class="switch">
-                            <input type="checkbox" id="dmExclusiveToggle" onchange="toggleDmExclusive()">
-                            <span class="slider"></span>
-                        </label>
-                        <div id="dmExclusiveLabel" style="margin-top:10px; font-weight:bold;">Off</div>
                     </div>
                 </div>
 

@@ -1,39 +1,13 @@
 <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-        <link rel="stylesheet" href="/static/css/styles.css">
-    </head>
-    <body class="theme-tavern page-dm">
-
-        <h2 style="padding:15px;">Admin Timer</h2>
-
-        <div style="padding:20px;">
-            <h2 id="name"></h2>
-
-            <div id="time" style="font-size:48px; font-weight:bold;"></div>
-            <div id="status" style="margin-bottom:10px;"></div>
-            <div id="position" style="margin-bottom:20px;"></div>
-
-            <button id="toggleBtn" onclick="toggle()" style="font-size:24px; width:80%; margin:10px;">
-                Start
-            </button>
-
-            <button onclick="reset()" style="font-size:24px; width:80%; margin:10px;">
-                Reset
-            </button>
-
-            <br>
-
-            <button onclick="adjust(30)" style="font-size:20px; width:35%; margin:10px;">
-                +30s
-            </button>
-
-            <button onclick="adjust(-30)" style="font-size:20px; width:35%; margin:10px;">
-                -30s
-            </button>
-        </div>
-
-        <script src="/static/js/dm.js"></script>
-    </body>
-    </html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="theme-table page-remote">
+    <h2>DM Clock</h2>
+    <div id="timers" style="display:flex; flex-direction:column; padding:15px; max-width:600px; margin:0 auto;"></div>
+    <script src="/static/js/dm.js"></script>
+</body>
+</html>

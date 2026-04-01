@@ -5,7 +5,6 @@ let expanded = null;
 let locked = false;
 let adjustLocked = false;
 let numTimers = 6;
-let dmExclusive = false;
 let adjustInterval = 30;
 
 function formatTime(s) {
@@ -24,7 +23,6 @@ socket.on("control_update", (data) => {
     adjustLocked = data.adjust_locked || false;
     adjustInterval = data.adjust_interval || 30;
     numTimers = data.num_timers || 6;
-    dmExclusive = data.dm_exclusive || false;
     
     if (data.theme) {
         document.body.className = `theme-${data.theme} page-remote`;
@@ -63,11 +61,8 @@ function renderTimers() {
     const container = document.getElementById("timers");
     let ids = Object.keys(timers)
         .map(Number)
-        .sort((a, b) => a - b);
-    
-    if (dmExclusive) {
-        ids = ids.slice(0, -1);
-    }
+        .sort((a, b) => a - b)
+        .filter(id => timers[id] && timers[id].show_on_remote !== false);
 
     // Remove timers that are no longer in the list or hidden due to focus mode
     Array.from(container.children).forEach(child => {

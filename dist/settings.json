@@ -1,24 +1,35 @@
 {
-    "max_timer_id": 6,
+    "max_timer_id": 9,
     "active_timer_ids": [
         1,
         2,
         3,
         4,
         5,
-        6
+        6,
+        7
     ],
-    "dm_exclusive": false,
     "locked": false,
-    "adjust_locked": false,
-    "DEFAULT_DURATION": 180,
+    "adjust_locked": true,
+    "adjust_interval": 15,
+    "DEFAULT_DURATION": 265,
     "timer_names": {
         "1": "Alder",
-        "2": "Timer 2",
-        "3": "Timer 3",
-        "4": "Timer 4",
-        "5": "Timer 5",
-        "6": "Timer 6"
+        "2": "Elias",
+        "3": "Ophelia",
+        "4": "Cadere",
+        "5": "Thauma",
+        "6": "Herian Bullworm",
+        "7": "Sheriff Flintload"
+    },
+    "timer_show_on_remote": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": false,
+        "7": false
     },
     "theme": "tavern",
     "custom_bg_url": ""

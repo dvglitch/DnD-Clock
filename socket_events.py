@@ -71,10 +71,9 @@ def register_socket_events(socketio):
     def delete_timer(data):
         tm.delete_timer(int(data["timer"]))
 
-    @socketio.on("set_dm_exclusive")
-    def set_dm_exclusive(data):
-        new_state = tm.update_control_state("dm_exclusive", data["exclusive"])
-        socketio.emit("control_update", new_state)
+    @socketio.on("set_timer_visibility")
+    def set_timer_visibility(data):
+        tm.set_timer_visibility(int(data["timer"]), data["show_on_remote"])
 
     @socketio.on("set_theme")
     def set_theme(data):

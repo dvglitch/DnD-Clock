@@ -5,7 +5,6 @@ from persistence import load_settings, save_settings
 settings = load_settings()
 
 # Dynamic configuration
-dm_exclusive = settings.get("dm_exclusive", False)
 locked = settings.get("locked", False)
 adjust_locked = settings.get("adjust_locked", False)
 adjust_interval = settings.get("adjust_interval", 30)
@@ -24,7 +23,6 @@ control_state = {
     "locked": locked,
     "adjust_locked": adjust_locked,
     "adjust_interval": adjust_interval,
-    "dm_exclusive": dm_exclusive,
     "DEFAULT_DURATION": DEFAULT_DURATION,
     "theme": theme,
     "custom_bg_url": custom_bg_url
@@ -34,6 +32,7 @@ def init_timers():
     """Initialize timers based on active_timer_ids setting"""
     global timers, finish_order
     settings = load_settings()
+    timer_vis = settings.get("timer_show_on_remote", {})
     timers = {
         i: {
             "remaining": DEFAULT_DURATION,
@@ -43,7 +42,8 @@ def init_timers():
             "finished": False,
             "raised_hand": False,
             "condition": "",
-            "duration": DEFAULT_DURATION
+            "duration": DEFAULT_DURATION,
+            "show_on_remote": timer_vis.get(str(i), True)
         }
         for i in active_timer_ids
     }
@@ -57,12 +57,12 @@ def save_current_state():
     settings = {
         "max_timer_id": max_timer_id,
         "active_timer_ids": active_timer_ids,
-        "dm_exclusive": dm_exclusive,
         "locked": control_state["locked"],
         "adjust_locked": control_state.get("adjust_locked", False),
         "adjust_interval": control_state.get("adjust_interval", 30),
         "DEFAULT_DURATION": DEFAULT_DURATION,
         "timer_names": {str(k): v["name"] for k, v in timers.items()},
+        "timer_show_on_remote": {str(k): v.get("show_on_remote", True) for k, v in timers.items()},
         "theme": theme,
         "custom_bg_url": custom_bg_url
     }
@@ -74,7 +74,7 @@ def save_current_state():
 
 def update_control_state(key, value):
     """Updates a global control variable, syncs state, and persists."""
-    global dm_exclusive, DEFAULT_DURATION, theme, custom_bg_url, adjust_interval
+    global DEFAULT_DURATION, theme, custom_bg_url, adjust_interval
     
     if key == "locked":
         control_state["locked"] = value
@@ -86,9 +86,6 @@ def update_control_state(key, value):
     elif key == "DEFAULT_DURATION":
         DEFAULT_DURATION = int(value)
         control_state["DEFAULT_DURATION"] = DEFAULT_DURATION
-    elif key == "dm_exclusive":
-        dm_exclusive = bool(value)
-        control_state["dm_exclusive"] = dm_exclusive
     elif key == "theme":
         theme = value
         control_state["theme"] = theme
@@ -118,7 +115,8 @@ def add_timer():
         "finished": False,
         "raised_hand": False,
         "condition": "",
-        "duration": DEFAULT_DURATION
+        "duration": DEFAULT_DURATION,
+        "show_on_remote": True
     }
     save_current_state()
     return new_id
@@ -200,6 +198,11 @@ def adjust_timer(timer_id, delta):
 def set_timer_name(timer_id, name):
     if timer_id not in timers: return
     timers[timer_id]["name"] = name
+    save_current_state()
+
+def set_timer_visibility(timer_id, show_on_remote):
+    if timer_id not in timers: return
+    timers[timer_id]["show_on_remote"] = bool(show_on_remote)
     save_current_state()
 
 # ==========================================
