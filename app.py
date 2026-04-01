@@ -12,11 +12,38 @@ from utils import get_local_ip
 import webbrowser
 from threading import Timer
 import os
-from flask import jsonify
+import sys
+from flask import jsonify, send_from_directory
 
+
+# Path resolution for PyInstaller
+def get_resource_path(relative_path):
+    if getattr(sys, 'frozen', False):
+        # Running as a bundled executable
+        exe_dir = os.path.dirname(sys.executable)
+        external_path = os.path.join(exe_dir, relative_path)
+        # Create the folder if it doesn't exist
+        if not os.path.exists(external_path):
+            os.makedirs(external_path, exist_ok=True)
+        return external_path
+    else:
+        # Running as a script
+        return os.path.join(os.path.dirname(__file__), "static", relative_path)
+
+EXTERNAL_SOUNDS_DIR = get_resource_path("sounds")
+EXTERNAL_IMAGES_DIR = get_resource_path("images")
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+
+# Custom routes to serve external assets
+@app.route('/static/sounds/<path:filename>')
+def serve_external_sounds(filename):
+    return send_from_directory(EXTERNAL_SOUNDS_DIR, filename)
+
+@app.route('/static/images/<path:filename>')
+def serve_external_images(filename):
+    return send_from_directory(EXTERNAL_IMAGES_DIR, filename)
 
 app.register_blueprint(control_bp)
 app.register_blueprint(display_bp)
@@ -30,10 +57,9 @@ socketio.start_background_task(timer_loop, socketio)
 
 @app.route("/api/sounds")
 def list_sounds():
-    sounds_dir = os.path.join(app.root_path, "static", "sounds")
-    if not os.path.exists(sounds_dir):
+    if not os.path.exists(EXTERNAL_SOUNDS_DIR):
         return jsonify([])
-    files = [f for f in os.listdir(sounds_dir) if f.endswith(('.mp3', '.wav', '.ogg'))]
+    files = [f for f in os.listdir(EXTERNAL_SOUNDS_DIR) if f.endswith(('.mp3', '.wav', '.ogg'))]
     return jsonify(sorted(files))
 
 if __name__ == "__main__":
