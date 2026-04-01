@@ -41,10 +41,9 @@ jobs:
         shell: bash
 
     - name: Archive dist
-      uses: thepipeliner/composite-actions/zip@main
-      with:
-        source_dir: 'dist'
-        output_file: 'DnD-Clock-Windows.zip'
+      run: |
+        Compress-Archive -Path dist\* -DestinationPath DnD-Clock-Windows.zip
+      shell: pwsh
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
