@@ -43,11 +43,28 @@ jobs:
         Compress-Archive -Path dist\* -DestinationPath DnD-Clock-Windows.zip
       shell: pwsh
 
+    - name: Generate Version String
+      id: calver
+      shell: pwsh
+      run: |
+        $today = Get-Date -Format "yy.M.d"
+        # Get count of today's tags
+        try {
+          $tags = gh release list --limit 100 | Select-String -Pattern "^$today\."
+          $count = ($tags | Measure-Object).Count
+        } catch {
+          $count = 0
+        }
+        $version = "$today.$($count + 1)"
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: latest
-        name: Latest Build
+        tag_name: ${{ steps.calver.outputs.version }}
+        name: ${{ steps.calver.outputs.version }}
         body: |
           Automated build from the latest push to main.
           
