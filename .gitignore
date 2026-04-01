@@ -1,0 +1,22 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# PyInstaller build and distribution
+build/
+dist/
+*.spec
+
+# Settings & Local State (Prevents accidental overwrite of DM's own sessions)
+# settings.json
+
+# Environment/VSCode
+.venv/
+venv/
+ENV/
+.vscode/
+.idea/
+.DS_Store
