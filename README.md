@@ -46,8 +46,8 @@ If all of your players are in the same room and connected to the same Wi-Fi netw
 ### Method 2: Internet / Remote Play (Using Cloudflare)
 If you have players joining over Discord/Zoom, or if your local Wi-Fi router blocks device-to-device communication, you can safely expose the app to the internet for free using Cloudflare.
 
-1. Start the app locally by running `python app.py`. **Leave this terminal open.**
-2. Run the **`start-tunnel.bat`** file included in this folder.
+1. Start the app locally by running `DnD-Clock.exe`. **Leave this terminal open.**
+2. Run the **`start-tunnel.exe`** file included in this folder.
 3. This script will automatically download the necessary Cloudflare binary (the first time you run it) and then start the tunnel for you.
 4. Find the URL it generates for you (it will look something like `https://some-random-words.trycloudflare.com`).
 5. Open that URL on your computer and navigate to `/dm`.

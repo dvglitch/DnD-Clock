@@ -1,5 +1,12 @@
 @echo off
-echo Building DnD-Clock executable...
+echo [DnD-Clock] Building Main Application...
 pyinstaller --noconfirm DnD-Clock.spec
-echo Build complete. The executable is in the "dist" folder.
+
+echo [DnD-Clock] Building Tunnel Downloader...
+pyinstaller --noconfirm --onefile --console --name "start-tunnel" start-tunnel.py
+
+echo.
+echo [OK] Build complete! 
+echo [!] Remember to copy your "sounds" and "images" folders into the "dist" folder if you haven't already.
+echo [!] Both executables are now in the "dist" folder.
 pause

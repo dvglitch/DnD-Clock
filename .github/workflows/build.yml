@@ -27,13 +27,15 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
+        # Build the main app
         pyinstaller --noconfirm DnD-Clock.spec
+        # Build the tunnel downloader (onefile, console)
+        pyinstaller --noconfirm --onefile --console --name "start-tunnel" start-tunnel.py
 
     - name: Prepare Distribution
       shell: pwsh
       run: |
-        # Copy help scripts to dist
-        cp start-tunnel.bat dist/ || true
+        # Copy help scripts to dist (Already built as exe into dist folder now)
         # Copy existing assets to dist (user facing)
         if (Test-Path "static/sounds/*") { Copy-Item -Path "static/sounds/*" -Destination "dist/sounds/" -Recurse -Force -ErrorAction SilentlyContinue }
         if (Test-Path "static/images/*") { Copy-Item -Path "static/images/*" -Destination "dist/images/" -Recurse -Force -ErrorAction SilentlyContinue }
