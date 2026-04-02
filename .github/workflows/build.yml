@@ -35,15 +35,15 @@ jobs:
     - name: Prepare Distribution
       shell: pwsh
       run: |
-        # Copy help scripts to dist (Already built as exe into dist folder now)
-        # Copy existing assets to dist (user facing)
-        if (Test-Path "static/sounds/*") { Copy-Item -Path "static/sounds/*" -Destination "dist/sounds/" -Recurse -Force -ErrorAction SilentlyContinue }
-        if (Test-Path "static/images/*") { Copy-Item -Path "static/images/*" -Destination "dist/images/" -Recurse -Force -ErrorAction SilentlyContinue }
+        # Copy folders recursively to dist
+        if (Test-Path "static/sounds") { Copy-Item -Path "static/sounds" -Destination "dist/" -Recurse -Force }
+        if (Test-Path "static/images") { Copy-Item -Path "static/images" -Destination "dist/" -Recurse -Force }
 
     - name: Archive dist
-      run: |
-        Compress-Archive -Path dist\* -DestinationPath DnD-Clock-Windows.zip
       shell: pwsh
+      run: |
+        # Zip all items inside the dist folder
+        Get-ChildItem -Path dist | Compress-Archive -DestinationPath DnD-Clock-Windows.zip -Force
 
     - name: Generate Version String
       id: calver
