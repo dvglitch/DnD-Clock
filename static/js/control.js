@@ -433,7 +433,11 @@ function addTimer() {
 }
 
 function deleteTimer(timer) {
-    if(confirm("Are you sure you want to delete this combatant?")) {
+    const nameInput = document.getElementById(`name-${timer}`);
+    const initNameInput = document.getElementById(`init-name-${timer}`);
+    const combatantName = (nameInput?.value || initNameInput?.value || `Timer ${timer}`).trim() || `Timer ${timer}`;
+
+    if(confirm(`Are you sure you want to delete ${combatantName}?`)) {
         socket.emit("delete_timer", {timer});
     }
 }
