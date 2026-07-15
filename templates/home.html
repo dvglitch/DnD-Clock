@@ -1,0 +1,110 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DnD Clock — Combat Timer System</title>
+    <meta name="description" content="Real-time combat timers for Dungeons & Dragons and tabletop RPGs. Synchronized display, DM controls, and mobile player remotes.">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="theme-tavern page-home">
+
+    <!-- Hero Header -->
+    <header class="home-header">
+        <h1 class="home-title">DnD Clock</h1>
+        <p class="home-tagline">Real-time combat timers for your tabletop sessions</p>
+        <div class="home-divider"></div>
+    </header>
+
+    <!-- Navigation Grid -->
+    <section class="home-section">
+        <h2 class="home-section-title">Pages</h2>
+        <div class="nav-grid">
+
+            <a href="/display" class="nav-card">
+                <div class="nav-card-icon">🖥️</div>
+                <h3 class="nav-card-title">Player Display</h3>
+                <p class="nav-card-desc">The shared screen view showing all active combat timers and a QR code for players to connect.</p>
+            </a>
+
+            <a href="/control" class="nav-card">
+                <div class="nav-card-icon">🎛️</div>
+                <h3 class="nav-card-title">Control Panel</h3>
+                <p class="nav-card-desc">The DM's full control interface — manage timers, set themes, configure initiative, and run combat.</p>
+            </a>
+
+            <a href="/dm" class="nav-card">
+                <div class="nav-card-icon">📋</div>
+                <h3 class="nav-card-title">DM Clock</h3>
+                <p class="nav-card-desc">A compact, DM-only view of all timers for quick reference on a personal device.</p>
+            </a>
+
+            <a href="/remote" class="nav-card">
+                <div class="nav-card-icon">📱</div>
+                <h3 class="nav-card-title">Player Remote</h3>
+                <p class="nav-card-desc">Mobile-friendly interface for players to control their own timer from their phone.</p>
+            </a>
+
+
+
+
+        </div>
+    </section>
+
+    <!-- Combat Instructions -->
+    <section class="home-section combat-info">
+        <h2 class="home-section-title">⚔️ How Timer-Based Combat Works</h2>
+
+        <div class="combat-info-grid">
+
+            <div class="combat-info-card">
+                <h3>How It Works</h3>
+                <p>
+                    Actions work like turn-based combat, but timers replace initiative order.
+                    Each combatant has a countdown — when your timer hits 0, you may take your
+                    action regardless of whose "turn" it is. After acting, reset your timer to
+                    start the cooldown again. Initiative still matters: it determines how long
+                    each player's cooldown is, so higher initiative means you act more frequently.
+                </p>
+            </div>
+
+            <div class="combat-info-card">
+                <h3>Movement & Bonus Actions</h3>
+                <p>
+                    Movement and bonus actions are not tracked by the timer. You may use your
+                    movement and bonus action freely once per action cycle. They replenish after
+                    you take your next action.
+                </p>
+            </div>
+
+            <div class="combat-info-card">
+                <h3>Combos</h3>
+                <p>
+                    If two or more players hit 0 at the same time, they may combine their actions
+                    for a stat bonus at the DM's discretion. Coordinate with your party to set up
+                    devastating joint strikes!
+                </p>
+            </div>
+
+            <div class="combat-info-card">
+                <h3>Getting Started</h3>
+                <p>
+                    The DM sets up combatants on the <strong>Control Panel</strong> and projects
+                    the <strong>Display</strong> on a shared screen. Players scan the QR code to
+                    get their own <strong>Remote</strong>. Hit start and begin fighting!
+                </p>
+            </div>
+
+        </div>
+
+        <div class="combat-info-footer">
+            <p>
+                The goal is to reduce downtime between turns and keep every player engaged throughout combat.
+                Adjust any of these rules to fit your campaign — this is your tool, make it work for you.
+            </p>
+        </div>
+
+    </section>
+
+</body>
+</html>

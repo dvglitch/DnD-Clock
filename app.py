@@ -4,6 +4,7 @@ from flask_socketio import SocketIO
 from routes.control import control_bp
 from routes.display import display_bp
 from routes.dm import dm_bp
+from routes.home import home_bp
 from routes.qr import qr_bp
 from routes.remote import remote_bp
 from socket_events import register_socket_events
@@ -48,6 +49,7 @@ def serve_external_images(filename):
 app.register_blueprint(control_bp)
 app.register_blueprint(display_bp)
 app.register_blueprint(dm_bp)
+app.register_blueprint(home_bp)
 app.register_blueprint(qr_bp)
 app.register_blueprint(remote_bp)
 

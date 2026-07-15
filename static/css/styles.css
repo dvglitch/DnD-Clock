@@ -45,7 +45,7 @@ input[type=number], input[type=text] {
     font-family: 'Inter', sans-serif; 
 }
 /* Theme Classes */
-body.theme-tavern.page-control, body.theme-tavern.page-display {
+body.theme-tavern.page-control, body.theme-tavern.page-display, body.theme-tavern.page-home {
     background: linear-gradient(rgba(17,17,17,0.85), rgba(17,17,17,0.88)), url('/static/images/tavern.png') no-repeat center center fixed;
     background-size: cover;
 }
@@ -183,4 +183,169 @@ input:checked + .slider:before { transform: translateX(26px); }
     color: #d4af37;
     display: block;
     margin-bottom: 2px;
+}
+
+/* ===================== */
+/* Home / Navigation Page */
+/* ===================== */
+
+body.page-home {
+    padding-bottom: 60px;
+}
+
+.home-header {
+    padding: 50px 20px 10px;
+}
+
+.home-title {
+    font-family: 'Cinzel', serif;
+    font-size: 64px;
+    color: #f5f5f5;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3), 2px 2px 4px black;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.home-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    color: #b0a080;
+    margin-top: 10px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+.home-divider {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    margin: 25px auto 0;
+}
+
+.home-section {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 30px;
+}
+
+.home-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    color: #d4af37;
+    text-shadow: 1px 1px 3px black;
+    margin-bottom: 25px;
+}
+
+/* Navigation Card Grid */
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.nav-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    background: linear-gradient(145deg, #2a2520, #1e1a16);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 12px;
+    padding: 30px 24px;
+    transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+}
+
+.nav-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(212, 175, 55, 0.4);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(212, 175, 55, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.nav-card-icon {
+    font-size: 36px;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.nav-card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    color: #d4af37;
+    margin: 0 0 10px;
+    text-shadow: 1px 1px 2px black;
+}
+
+.nav-card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #c0b8a8;
+    line-height: 1.6;
+    margin: 0;
+    text-align: center;
+}
+
+/* Combat Info Section */
+.combat-info {
+    margin-top: 60px;
+}
+
+.combat-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.combat-info-card {
+    background: rgba(20, 16, 12, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.12);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: left;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transition: border-color 0.3s ease;
+}
+
+.combat-info-card:hover {
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.combat-info-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: #d4af37;
+    margin: 0 0 12px;
+    text-shadow: 1px 1px 2px black;
+}
+
+.combat-info-card p {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #c8c0b0;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.combat-info-card strong {
+    color: #d4af37;
+}
+
+.combat-info-footer {
+    margin-top: 30px;
+    padding: 20px 30px;
+    background: rgba(212, 175, 55, 0.06);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 10px;
+}
+
+.combat-info-footer p {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: #b0a890;
+    line-height: 1.7;
+    margin: 0;
+    text-align: center;
+    font-style: italic;
 }
