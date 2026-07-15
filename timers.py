@@ -13,6 +13,7 @@ theme = settings.get("theme", "tavern")
 custom_bg_url = settings.get("custom_bg_url", "")
 timer_done_sound = settings.get("timer_done_sound", "synthetic")
 hand_raise_sound = settings.get("hand_raise_sound", "synthetic")
+cooldown_mode = settings.get("cooldown_mode", False)
 
 max_timer_id = settings.get("max_timer_id", 6)
 active_timer_ids = settings.get("active_timer_ids", list(range(1, max_timer_id + 1)))
@@ -29,7 +30,8 @@ control_state = {
     "theme": theme,
     "custom_bg_url": custom_bg_url,
     "timer_done_sound": timer_done_sound,
-    "hand_raise_sound": hand_raise_sound
+    "hand_raise_sound": hand_raise_sound,
+    "cooldown_mode": cooldown_mode
 }
 
 def init_timers():
@@ -37,16 +39,19 @@ def init_timers():
     global timers, finish_order
     settings = load_settings()
     timer_vis = settings.get("timer_show_on_remote", {})
+    timer_durs = settings.get("timer_durations", {})
+    timer_cooldown_durs = settings.get("timer_cooldown_durations", {})
     timers = {
         i: {
-            "remaining": DEFAULT_DURATION,
+            "remaining": int(timer_durs.get(str(i), DEFAULT_DURATION)),
             "running": False,
             "last_update": time.time(),
             "name": settings.get("timer_names", {}).get(str(i), f"Timer {i}"),
             "finished": False,
             "raised_hand": False,
             "condition": "",
-            "duration": DEFAULT_DURATION,
+            "duration": int(timer_cooldown_durs.get(str(i), timer_durs.get(str(i), DEFAULT_DURATION))) if control_state.get("cooldown_mode", False) else int(DEFAULT_DURATION),
+            "cooldown_duration": int(timer_cooldown_durs.get(str(i), timer_durs.get(str(i), DEFAULT_DURATION))),
             "show_on_remote": timer_vis.get(str(i), True)
         }
         for i in active_timer_ids
@@ -65,6 +70,9 @@ def save_current_state():
         "adjust_locked": control_state.get("adjust_locked", False),
         "adjust_interval": control_state.get("adjust_interval", 30),
         "DEFAULT_DURATION": DEFAULT_DURATION,
+        "cooldown_mode": control_state.get("cooldown_mode", False),
+        "timer_durations": {str(k): v["duration"] for k, v in timers.items()},
+        "timer_cooldown_durations": {str(k): v.get("cooldown_duration", v["duration"]) for k, v in timers.items()},
         "timer_names": {str(k): v["name"] for k, v in timers.items()},
         "timer_show_on_remote": {str(k): v.get("show_on_remote", True) for k, v in timers.items()},
         "theme": theme,
@@ -92,6 +100,10 @@ def update_control_state(key, value):
     elif key == "DEFAULT_DURATION":
         DEFAULT_DURATION = int(value)
         control_state["DEFAULT_DURATION"] = DEFAULT_DURATION
+        # In timer mode, pressing Set should reset all timer defaults to the universal value.
+        if not control_state.get("cooldown_mode", False):
+            for t in timers.values():
+                t["duration"] = DEFAULT_DURATION
     elif key == "theme":
         theme = value
         control_state["theme"] = theme
@@ -104,9 +116,25 @@ def update_control_state(key, value):
     elif key == "hand_raise_sound":
         hand_raise_sound = value
         control_state["hand_raise_sound"] = hand_raise_sound
+    elif key == "cooldown_mode":
+        control_state["cooldown_mode"] = bool(value)
+        # Swap visible/editable duration values by mode while preserving cooldown-specific defaults.
+        if control_state["cooldown_mode"]:
+            for t in timers.values():
+                t["duration"] = int(t.get("cooldown_duration", t.get("duration", DEFAULT_DURATION)))
+        else:
+            for t in timers.values():
+                t["duration"] = int(DEFAULT_DURATION)
     
     save_current_state()
     return control_state
+
+def set_timer_duration(timer_id, duration):
+    if timer_id not in timers: return
+    timers[timer_id]["duration"] = int(duration)
+    if control_state.get("cooldown_mode", False):
+        timers[timer_id]["cooldown_duration"] = int(duration)
+    save_current_state()
 
 def add_timer():
     global max_timer_id, active_timer_ids
@@ -127,7 +155,8 @@ def add_timer():
         "finished": False,
         "raised_hand": False,
         "condition": "",
-        "duration": DEFAULT_DURATION,
+        "duration": DEFAULT_DURATION if not control_state.get("cooldown_mode", False) else DEFAULT_DURATION,
+        "cooldown_duration": DEFAULT_DURATION,
         "show_on_remote": True
     }
     save_current_state()
@@ -162,21 +191,27 @@ def toggle_timer(timer_id):
     else:
         t["running"] = False
 
-def _reset_single(timer_id):
+def _reset_single(timer_id, start=False):
     """Internal helper to reset a single timer by ID avoiding duplicate logic"""
     if timer_id not in timers: return
     t = timers[timer_id]
-    t["remaining"] = DEFAULT_DURATION
-    t["duration"] = DEFAULT_DURATION
-    t["running"] = False
+    
+    if control_state.get("cooldown_mode", False):
+        t["remaining"] = t["duration"]
+        t["running"] = bool(start)
+    else:
+        # In timer mode, each timer can override universal default duration.
+        t["remaining"] = t["duration"]
+        t["running"] = False
+        
     t["last_update"] = time.time()
     t["finished"] = False
     t["raised_hand"] = False
     if timer_id in finish_order:
         finish_order.remove(timer_id)
 
-def reset_timer(timer_id):
-    _reset_single(timer_id)
+def reset_timer(timer_id, start=False):
+    _reset_single(timer_id, start=start)
 
 def toggle_all_timers():
     now = time.time()
@@ -198,6 +233,8 @@ def set_timer(timer_id, seconds):
     t = timers[timer_id]
     t["remaining"] = int(seconds)
     t["duration"] = int(seconds)
+    if control_state.get("cooldown_mode", False):
+        t["cooldown_duration"] = int(seconds)
     t["running"] = False
     t["last_update"] = time.time()
 

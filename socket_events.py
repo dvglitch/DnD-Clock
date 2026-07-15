@@ -17,7 +17,17 @@ def register_socket_events(socketio):
 
     @socketio.on("reset")
     def reset(data):
-        tm.reset_timer(int(data["timer"]))
+        start = data.get("start", False)
+        tm.reset_timer(int(data["timer"]), start=start)
+
+    @socketio.on("set_timer_duration")
+    def set_timer_duration(data):
+        tm.set_timer_duration(int(data["timer"]), int(data["duration"]))
+
+    @socketio.on("set_cooldown_mode")
+    def set_cooldown_mode(data):
+        new_state = tm.update_control_state("cooldown_mode", data["cooldown_mode"])
+        socketio.emit("control_update", new_state)
 
     @socketio.on("toggle_all")
     def toggle_all():
@@ -100,7 +110,9 @@ def register_socket_events(socketio):
         mode = data.get("mode", "proportional")
         interval = data.get("interval", 30)
         ranks = data.get("ranks", {})
+        min_seconds = data.get("min_seconds")
+        max_seconds = data.get("max_seconds")
         
-        updated_state = gl.calculate_initiatives(mode, interval, ranks)
+        updated_state = gl.calculate_initiatives(mode, interval, ranks, min_seconds=min_seconds, max_seconds=max_seconds)
         if updated_state:
             socketio.emit("control_update", updated_state)

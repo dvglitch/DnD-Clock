@@ -7,9 +7,22 @@
         4
     ],
     "locked": false,
-    "adjust_locked": false,
+    "adjust_locked": true,
     "adjust_interval": 15,
     "DEFAULT_DURATION": 2,
+    "cooldown_mode": true,
+    "timer_durations": {
+        "1": 60,
+        "2": 100,
+        "3": 100,
+        "4": 120
+    },
+    "timer_cooldown_durations": {
+        "1": 60,
+        "2": 100,
+        "3": 100,
+        "4": 120
+    },
     "timer_names": {
         "1": "Angel",
         "2": "Timer 2",

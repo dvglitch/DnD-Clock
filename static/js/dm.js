@@ -322,7 +322,7 @@ function toggle(e, i) {
 function reset(e, i) {
     e.stopPropagation();
     if (locked) return;
-    socket.emit("reset", {timer: i});
+    socket.emit("reset", {timer: i, start: true});
 }
 
 function toggleHand(e, i) {

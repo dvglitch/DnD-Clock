@@ -9,6 +9,30 @@
             <button id="nav-left" class="nav-btn" onclick="showSlide('prev')" style="position:fixed; top:50%; left:0; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; font-size:40px; padding:20px 10px; cursor:pointer; z-index:1000; border-radius:0 10px 10px 0; transition: background 0.2s;">&#10094;</button>
             <button id="nav-right" class="nav-btn" onclick="showSlide('next')" style="position:fixed; top:50%; right:0; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; font-size:40px; padding:20px 10px; cursor:pointer; z-index:1000; border-radius:10px 0 0 10px; transition: background 0.2s;">&#10095;</button>
 
+            <!-- Cooldown Mode Toggle (Top-Left) -->
+            <div style="position:absolute; top:20px; left:20px; display:flex; align-items:center; gap:10px; z-index:1001;">
+                <label class="switch">
+                    <input type="checkbox" id="cooldownModeToggle" onchange="toggleCooldownMode()">
+                    <span class="slider"></span>
+                </label>
+                <span id="cooldownModeLabel" style="font-size:14px; font-weight:bold; color:#d4af37; text-shadow:1px 1px 2px black;">Timer Mode</span>
+            </div>
+
+            <div class="help-container control-help-container">
+                <div class="help-icon">?</div>
+                <div class="help-tooltip control-help-tooltip">
+                    <h3>Control Page Guide</h3>
+                    <ul>
+                        <li><strong>Mode Toggle (top left)</strong>Green is Timer Mode and red is Cooldown Mode.</li>
+                        <li><strong>Settings Tab</strong>Set theme, sounds, lock controls, quick adjust amount, and default timer values.</li>
+                        <li><strong>Initiative Sync</strong>Assign each combatant an initiative rank and apply timing with one click.</li>
+                        <li><strong>Cooldown Min/Max</strong>In Cooldown Mode, initiative 1 gets min cooldown and the highest initiative gets max cooldown.</li>
+                        <li><strong>Active Combat Tab</strong>Start or pause all timers, reset all, and monitor each combatant in real time.</li>
+                        <li><strong>Compact UI</strong>Collapse extra controls for cleaner table visibility during combat.</li>
+                    </ul>
+                </div>
+            </div>
+
             <h1 style="margin-bottom:30px;">Control Panel</h1>
 
             <!-- SLIDE 1: SETUP & INITIATIVE -->
@@ -46,14 +70,14 @@
                         </select>
                     </div>
 
-                    <!-- Row 2: Logic & Controls (4 items, 3 cols each) -->
-                    <div style="grid-column: span 3; width:100%;">
+                    <!-- Row 2: Logic & Controls (4 items, 3 cols each or 3 items, 4 cols each in cooldown mode) -->
+                    <div id="combatants-col" style="grid-column: span 3; width:100%;">
                         <h3 style="margin:0 0 10px 0;">Combatants</h3>
                         <button onclick="addTimer()" style="padding:10px 20px; font-weight:bold; background:#1e7f3f; color:white; border:none; border-radius:5px; cursor:pointer; width:100%;">+ Add Timer</button>
                         <div style="margin-top:10px; font-size:12px; opacity:0.8;">Manage from combat tab</div>
                     </div>
 
-                    <div style="grid-column: span 3; width:100%;">
+                    <div id="default-time-col" style="grid-column: span 3; width:100%;">
                         <h3 style="margin:0 0 10px 0;">Default Time (s)</h3>
                         <div style="display:flex; gap:5px;">
                             <input id="allTime" type="number" value="180" style="width:100%; box-sizing:border-box; background:#333; color:white; border:1px solid #555; border-radius:5px; padding:8px;">
@@ -61,7 +85,7 @@
                         </div>
                     </div>
 
-                    <div style="grid-column: span 3; width:100%;">
+                    <div id="master-controls-col" style="grid-column: span 3; width:100%;">
                         <h3 style="margin:0 0 15px 0;">Master Controls</h3>
                         <label class="switch">
                             <input type="checkbox" id="lockToggle1" onchange="toggleLock('lockToggle1')">
@@ -70,7 +94,7 @@
                         <div id="lockLabel1" style="margin-top:10px; font-weight:bold; font-size:14px;">🔓 Unlocked</div>
                     </div>
 
-                    <div style="grid-column: span 3; width:100%;">
+                    <div id="quick-adjust-col" style="grid-column: span 3; width:100%;">
                         <h3 style="margin:0 0 15px 0;">Quick Adjust</h3>
                         <div style="display:flex; align-items:center; gap:20px; justify-content:center; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:5px;">
@@ -91,11 +115,19 @@
                 <h2 style="margin-bottom:30px;">Initiative Sync</h2>
                 <div style="margin-bottom:40px; background:#222; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.5); width:80%; margin:auto;">
                     <div style="display:flex; justify-content:center; gap:20px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
-                        <select id="initMode" style="background:#333; color:white; border:1px solid #555; padding:8px; border-radius:5px; font-family:'Inter', sans-serif;">
-                            <option value="proportional">Proportional (Default Time)</option>
-                            <option value="interval">Interval (Max time becomes Default)</option>
-                        </select>
-                        <input id="initInterval" type="number" placeholder="Interval (s)" value="30" style="width:100px; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:5px;">
+                        <div id="init-standard-controls" style="display:flex; gap:20px; align-items:center;">
+                            <select id="initMode" style="background:#333; color:white; border:1px solid #555; padding:8px; border-radius:5px; font-family:'Inter', sans-serif;">
+                                <option value="proportional">Proportional (Default Time)</option>
+                                <option value="interval">Interval (Max time becomes Default)</option>
+                            </select>
+                            <input id="initInterval" type="number" placeholder="Interval (s)" value="30" style="width:100px; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:5px;">
+                        </div>
+                        <div id="init-cooldown-controls" style="display:none; gap:20px; align-items:center;">
+                            <span style="font-size:14px; opacity:0.8;">Min Cooldown (s):</span>
+                            <input id="initMin" type="number" placeholder="Min (s)" value="60" style="width:90px; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:5px;">
+                            <span style="font-size:14px; opacity:0.8;">Max Cooldown (s):</span>
+                            <input id="initMax" type="number" placeholder="Max (s)" value="120" style="width:90px; padding:8px; background:#333; color:white; border:1px solid #555; border-radius:5px;">
+                        </div>
                         <button onclick="calculateInitiatives()" style="background:#1e7f3f; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">Set Initiatives</button>
                     </div>                    
                     <div id="init-list" style="margin-top:30px; display:grid; grid-template-columns:repeat(2, 1fr); gap:15px; text-align:left;"></div>

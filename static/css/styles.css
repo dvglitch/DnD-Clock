@@ -185,6 +185,20 @@ input:checked + .slider:before { transform: translateX(26px); }
     margin-bottom: 2px;
 }
 
+.control-help-tooltip {
+    width: 480px;
+}
+
+@media (max-width: 768px) {
+    .control-help-tooltip {
+        width: min(90vw, 420px);
+    }
+
+    .control-help-container .help-tooltip {
+        right: 0;
+    }
+}
+
 /* ===================== */
 /* Home / Navigation Page */
 /* ===================== */

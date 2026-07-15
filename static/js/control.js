@@ -9,11 +9,54 @@ function formatTime(s) {
 let locked = false;
 let adjustLocked = false;
 let adjustInterval = 30;
+let cooldownMode = false;
+
+function updateCooldownModeUI(isCooldown) {
+    cooldownMode = isCooldown;
+
+    const toggle = document.getElementById("cooldownModeToggle");
+    if (toggle) toggle.checked = cooldownMode;
+
+    const modeLabel = document.getElementById("cooldownModeLabel");
+    if (modeLabel) {
+        modeLabel.innerText = cooldownMode ? "Cooldown Mode" : "Timer Mode";
+    }
+
+    // Hide/show default time container
+    const defaultTimeCol = document.getElementById("default-time-col");
+    if (defaultTimeCol) {
+        defaultTimeCol.style.display = cooldownMode ? "none" : "block";
+    }
+
+    // Adjust column spans in Settings Slide Row 2
+    const combatantsCol = document.getElementById("combatants-col");
+    const masterCol = document.getElementById("master-controls-col");
+    const quickAdjCol = document.getElementById("quick-adjust-col");
+
+    if (combatantsCol) combatantsCol.style.gridColumn = cooldownMode ? "span 4" : "span 3";
+    if (masterCol) masterCol.style.gridColumn = cooldownMode ? "span 4" : "span 3";
+    if (quickAdjCol) quickAdjCol.style.gridColumn = cooldownMode ? "span 4" : "span 3";
+
+    // Toggle Initiative control fields
+    const initStandard = document.getElementById("init-standard-controls");
+    const initCooldown = document.getElementById("init-cooldown-controls");
+    if (initStandard) initStandard.style.display = cooldownMode ? "none" : "flex";
+    if (initCooldown) initCooldown.style.display = cooldownMode ? "flex" : "none";
+
+    // Keep per-timer duration fields visible in both modes, but relabel them.
+    document.querySelectorAll("[id^='duration-label-']").forEach((label) => {
+        label.innerText = cooldownMode ? "Default Cooldown:" : "Default Time:";
+    });
+}
                   
 socket.on("control_update", (data) => {
     locked = data.locked || false;
     adjustLocked = data.adjust_locked || false;
     adjustInterval = data.adjust_interval || 30;
+    
+    if (data.cooldown_mode !== undefined) {
+        updateCooldownModeUI(data.cooldown_mode);
+    }
     
     const adjustInput = document.getElementById("adjustIntervalInput");
     if (adjustInput && document.activeElement !== adjustInput) {
@@ -148,6 +191,13 @@ socket.on("update", (data) => {
                         <button onclick="setTimer(${i})" style="flex:1; margin:0;">Set</button>
                     </div>
 
+                    <!-- Set per-combatant default duration -->
+                    <div id="cooldown-container-${i}" class="hide-on-compact" style="display:flex; gap:10px; align-items:center;">
+                        <span id="duration-label-${i}" style="font-size:12px; opacity:0.8; white-space:nowrap; text-align:left; flex:1;">Default Time:</span>
+                        <input id="duration-input-${i}" type="number" placeholder="Seconds" style="width:80px; margin:0; box-sizing:border-box; height:36px; padding:5px; text-align:center; font-family:'Inter', sans-serif;">
+                        <span style="font-size:12px; opacity:0.8;">s</span>
+                    </div>
+
                     <!-- Progress Bar Container -->
                     <div style="position:absolute; bottom:0; left:0; right:0; height:8px; background:rgba(0,0,0,0.5);">
                         <div id="pb-${i}" style="height:100%; width:100%; background:#4CAF50; transition:width 0.5s linear, background-color 0.5s;"></div>
@@ -169,11 +219,31 @@ socket.on("update", (data) => {
                 const condition = document.getElementById(`condition-${i}`).value;
                 socket.emit("set_condition", {timer: i, condition});
             };
+
+            document.getElementById(`duration-input-${i}`).onchange = () => {
+                const duration = parseInt(document.getElementById(`duration-input-${i}`).value, 10);
+                if (!isNaN(duration) && duration > 0) {
+                    socket.emit("set_timer_duration", {timer: i, duration});
+                }
+            };
         }
 
         const nameInput = document.getElementById(`name-${i}`);
         if (document.activeElement !== nameInput) {
             nameInput.value = t.name;
+        }
+
+        const coolContainer = document.getElementById(`cooldown-container-${i}`);
+        if (coolContainer) {
+            coolContainer.style.display = "flex";
+        }
+        const durationInput = document.getElementById(`duration-input-${i}`);
+        if (durationInput && document.activeElement !== durationInput) {
+            durationInput.value = t.duration || 180;
+        }
+        const durationLabel = document.getElementById(`duration-label-${i}`);
+        if (durationLabel) {
+            durationLabel.innerText = cooldownMode ? "Default Cooldown:" : "Default Time:";
         }
 
         // ✅ Update buttons
@@ -442,11 +512,13 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') showSlide('prev');
 });
 
+function toggleCooldownMode() {
+    const isCooldown = document.getElementById("cooldownModeToggle").checked;
+    updateCooldownModeUI(isCooldown);
+    socket.emit("set_cooldown_mode", {cooldown_mode: isCooldown});
+}
+
 function calculateInitiatives() {
-    const mode = document.getElementById("initMode").value;
-    const intervalStr = document.getElementById("initInterval").value;
-    const interval = parseInt(intervalStr) || 30;
-    
     const ranks = {};
     const ids = Array.from(document.querySelectorAll("[id^='init-rank-']")).map(el => Number(el.id.replace("init-rank-", "")));
     
@@ -462,7 +534,16 @@ function calculateInitiatives() {
         return;
     }
     
-    socket.emit("calculate_initiatives", { mode, interval, ranks });
+    if (cooldownMode) {
+        const minVal = parseInt(document.getElementById("initMin").value, 10) || 60;
+        const maxVal = parseInt(document.getElementById("initMax").value, 10) || 120;
+        socket.emit("calculate_initiatives", { ranks, min_seconds: minVal, max_seconds: maxVal });
+    } else {
+        const mode = document.getElementById("initMode").value;
+        const intervalStr = document.getElementById("initInterval").value;
+        const interval = parseInt(intervalStr) || 30;
+        socket.emit("calculate_initiatives", { mode, interval, ranks });
+    }
 }
 
 async function fetchSounds() {
